@@ -1,0 +1,38 @@
+{
+  "name": "unipop-command",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "UniPop COMMAND — Planification & coordination. Built by Frank & Cameron.",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json",
+    "typecheck:core": "tsc -p tsconfig.core.json",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "build:single": "node scripts/build-single.mjs",
+    "e2e": "node e2e/acceptance.mjs",
+    "samples": "node --import tsx scripts/dev/sample-prints.ts"
+  },
+  "dependencies": {
+    "pdf-lib": "1.17.1",
+    "react": "19.2.5",
+    "react-dom": "19.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "esbuild": "0.27.7",
+    "playwright": "1.56.0",
+    "tsx": "4.21.0",
+    "typescript": "6.0.3",
+    "vite": "^7.1.0"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
+}

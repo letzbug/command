@@ -1,0 +1,11 @@
+{
+  "name": "UniPop COMMAND",
+  "short_name": "COMMAND",
+  "description": "Planification & coordination",
+  "lang": "fr-LU",
+  "start_url": "/#annee",
+  "display": "standalone",
+  "background_color": "#F2F4F7",
+  "theme_color": "#12203A",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
