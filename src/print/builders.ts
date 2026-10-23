@@ -74,7 +74,7 @@ export function buildAnnualInput(
   return {
     year: o.year, format: o.format, orientation: o.orientation,
     title: `Planning annuel ${o.year}`,
-    subtitle: `UniPop COMMAND — Planification & coordination${o.include.courses && o.demoCourses ? ' (formations : données de démonstration)' : ''}`,
+    subtitle: `UniPop COMMAND — Planification & coordination`,
     generatedText: `Généré le ${formatTimestamp(new Date().toISOString())}`,
     filterText: scope,
     items, markers, courseDays,

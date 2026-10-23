@@ -103,12 +103,19 @@ export function normalizeMember(r: Partial<TeamMember>): TeamMember {
   };
 }
 
+/** Repair obsolete GitHub browser URLs and the previously blocked source without changing other settings. */
+export function normalizeCourseSourceUrl(value: string): string {
+  const v = value.trim();
+  if (!v || v === 'https://www.unipop.lu/private/trainings.json' || /^https:\/\/github\.com\/letzbug\/franks_magic\/(?:tree|blob)\//i.test(v)) return DEFAULT_COURSE_SOURCE;
+  return v;
+}
+
 export function normalizeSettings(r: Partial<Settings> | undefined, env?: Partial<Record<string, string>>): Settings {
   const d = defaultSettings(env);
   if (!r) return d;
   return {
     organisationName: str(r.organisationName, d.organisationName),
-    courseSourceUrl: str(r.courseSourceUrl, d.courseSourceUrl) || d.courseSourceUrl,
+    courseSourceUrl: normalizeCourseSourceUrl(str(r.courseSourceUrl, d.courseSourceUrl)),
     courseAutoSyncHours: Number.isFinite(Number(r.courseAutoSyncHours)) ? Math.max(0, Number(r.courseAutoSyncHours)) : d.courseAutoSyncHours,
     publicAppUrl: str(r.publicAppUrl, d.publicAppUrl),
     reminderThresholds: normalizeThresholds(arr<number>(r.reminderThresholds)).length ? normalizeThresholds(arr<number>(r.reminderThresholds)) : d.reminderThresholds,

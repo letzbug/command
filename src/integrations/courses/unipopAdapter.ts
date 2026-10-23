@@ -30,7 +30,7 @@ export interface RawUniPopCourse {
   langueCoursNom?: string;
   niveau?: string;
   onlineRegistrationUrl?: string;
-  organisateur?: { nom?: string };
+  organisateur?: { code?: string; nom?: string };
 }
 
 export const CATEGORY_LABELS: Record<string, string> = {
@@ -142,6 +142,8 @@ export function mapUniPopCourses(raw: unknown): MapResult {
   for (const item of list) {
     if (!item || typeof item !== 'object') { skipped++; continue; }
     const r = item as RawUniPopCourse;
+    // Only UniPop-owned courses, regardless of the other organisers in the feed.
+    if (clean(r.organisateur?.code).toUpperCase() !== 'UNIPOP') continue;
     const start = parseFrDate(r.dateDebut);
     const end = parseFrDate(r.dateFin) ?? start;
     const title = clean(r.intitule);
@@ -161,7 +163,7 @@ export function mapUniPopCourses(raw: unknown): MapResult {
       themeCode: clean(r.matiereCode) || catCode,
       category: CATEGORY_LABELS[catCode] ?? (sentenceCase(r.categorieNom ?? '') || 'Autre'),
       categoryCode: catCode || 'AUTRE',
-      description: typeof r.description === 'string' ? r.description.trim() : '',
+      description: '',
       location: distance ? 'À distance' : clean(addr.nom) || 'Lieu à préciser',
       locality: distance ? 'À distance' : clean(addr.localite),
       room: clean(addr.salle) || null,
@@ -169,13 +171,13 @@ export function mapUniPopCourses(raw: unknown): MapResult {
       trainer: trainers.length ? trainers.join(', ') : null,
       enrolled: typeof r.nbInscrits === 'number' ? r.nbInscrits : null,
       capacity: typeof r.nbPlaces === 'number' ? r.nbPlaces : null,
-      language: clean(r.langueCoursNom) || null,
-      level: clean(r.niveau) || null,
-      organizer: clean(r.organisateur?.nom) || null,
+      language: null,
+      level: null,
+      organizer: null,
       startDate: start,
       endDate: end,
       scheduleText: clean(r.horairePrevu) || null,
-      registrationUrl: clean(r.onlineRegistrationUrl) || null,
+      registrationUrl: null,
       sessions: buildSessions(r, start, end),
     });
   }

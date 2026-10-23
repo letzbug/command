@@ -225,7 +225,7 @@ export function layoutAnnual(input: AnnualInput, m: Measure): PrintDoc {
       pb.text(lx + sw + 2 * k + 0.5, ly + ts * PT_TO_MM * 0.36, label, ts, C.text);
       lx += sw + 2 * k + 0.5 + m.width(label, ts) + 9 * k + 2;
     }
-    pb.text(W - margin, ly + ts * PT_TO_MM * 0.36, 'UniPop COMMAND — Built by Frank & Cameron', fs(10, 5), C.faint, { align: 'right' });
+    pb.text(W - margin, ly + ts * PT_TO_MM * 0.36, 'UniPop COMMAND — Built by Frank G — IBM Certified AI Developer', fs(10, 5), C.faint, { align: 'right' });
   }
   return { title: input.title, pages: [pb.page()] };
 }

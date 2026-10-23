@@ -44,10 +44,12 @@ export function DayContent({ date, data, expanded, compact, initialTheme }: { da
   const themeRef = useRef<HTMLDivElement>(null);
   useEffect(() => { if (initialTheme) themeRef.current?.scrollIntoView({ block: 'nearest' }); }, [initialTheme]);
   const hol = data.holidays.get(date);
+  const school = data.schoolBreaks.get(date);
   const nothing = !occ.length && !due.length && !themes.length;
   return (
     <div className={`daycontent ${compact ? 'is-compact' : ''}`}>
       {hol ? <p className="day-hol"><Icon name="info" size={15} />Jour férié : {hol}</p> : null}
+      {school ? <p className="day-school"><Icon name="info" size={15} />Vacances scolaires : {school}</p> : null}
       {occ.length ? (
         <section className="dsec">
           {!compact ? <h4>Événements et projets</h4> : null}

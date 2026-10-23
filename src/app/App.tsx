@@ -84,11 +84,11 @@ function Sidebar() {
         ))}
       </ul>
       <div className="sidebar-foot">
-        <button type="button" className="demo-chip" onClick={() => ui.go('equipe')} title="Mode démo local, sans comptes ni authentification">
+        <button type="button" className="demo-chip" onClick={() => ui.go('equipe')} title="Sélection de profil local : sans authentification">
           <span className="demo-dot" />
-          <span><b>Mode démo local</b><small>{me ? `${me.code}, ${ROLE_LABEL[me.role].toLowerCase()}` : 'Aucun utilisateur'}</small></span>
+          <span><b>Profil sélectionné</b><small>{me ? `${me.code}, ${ROLE_LABEL[me.role].toLowerCase()}` : 'Aucun utilisateur'}</small></span>
         </button>
-        <p className="credit">Built by Frank &amp; Cameron</p>
+        <p className="credit">Built by Frank G<br /><strong>IBM Certified AI Developer</strong></p>
       </div>
     </nav>
   );

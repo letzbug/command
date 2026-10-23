@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { eachDay, maxDate, minDate } from '../domain/dates';
 import { isDone, isOverdue } from '../domain/planning';
 import { expandEvents, Occurrence } from '../domain/recurrence';
-import { luxembourgHolidays } from '../domain/reference';
+import { luxembourgHolidays, schoolBreakOn } from '../domain/reference';
 import { computeReminders } from '../domain/reminders';
 import { normalize } from '../domain/search';
 import type { ISODate, PlanningEvent, Task, TeamMember } from '../domain/types';
@@ -61,6 +61,7 @@ export interface CalendarData {
   dueByDate: Map<ISODate, Task[]>;
   coursesByDate: Map<ISODate, SessionRef[]>;
   holidays: Map<ISODate, string>;
+  schoolBreaks: Map<ISODate, string>;
   courseMax: number;
 }
 
@@ -131,7 +132,12 @@ export function useCalendarData(from: ISODate, to: ISODate, f: CalFilters): Cale
         for (const h of luxembourgHolidays(y)) if (h.date >= from && h.date <= to) holidays.set(h.date, h.name);
       }
     }
-    return { occurrences, occByDate, dueByDate, coursesByDate, holidays, courseMax };
+    const schoolBreaks = new Map<ISODate, string>();
+    for (const d of eachDay(from, to)) {
+      const name = schoolBreakOn(d);
+      if (name) schoolBreaks.set(d, name);
+    }
+    return { occurrences, occByDate, dueByDate, coursesByDate, holidays, schoolBreaks, courseMax };
   }, [events, tasks, today, showHolidays, idx, from, to, f]);
 }
 

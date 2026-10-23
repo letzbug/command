@@ -63,8 +63,8 @@ export function DemoUserSwitch() {
   const current = memberById.get(me ?? '');
   return (
     <div className="demo-user">
-      <Field label="Utilisateur de démonstration" hint={current ? `Rôle simulé : ${ROLE_LABEL[current.role]}. Aucune authentification : ce sélecteur n’est pas une sécurité.` : 'Aucun utilisateur : droits administrateur par défaut.'}>
-        <Select value={me ?? ''} onChange={(v) => void run(() => store.updateSettings({ currentUserId: v || null }, { asUserSwitch: true }), 'Utilisateur de démonstration changé')} ariaLabel="Utilisateur de démonstration"
+      <Field label="Profil de travail" hint={current ? `Rôle affiché : ${ROLE_LABEL[current.role]}. Aucune authentification : ce sélecteur n’est pas une sécurité.` : 'Aucun utilisateur : droits administrateur par défaut.'}>
+        <Select value={me ?? ''} onChange={(v) => void run(() => store.updateSettings({ currentUserId: v || null }, { asUserSwitch: true }), 'Profil de travail changé')} ariaLabel="Profil de travail"
           options={[{ value: '', label: 'Aucun' }, ...activeTeam.map((m) => ({ value: m.id, label: `${m.code} — ${ROLE_LABEL[m.role]}` }))]} />
       </Field>
     </div>
@@ -124,7 +124,7 @@ export function TeamPage() {
       </section>
       <section>
         <h3 className="list-head">Rôles et autorisations</h3>
-        <p className="warn-note"><Icon name="alert" size={15} />Mode démo local : les rôles sont simulés dans l’interface. En production, les droits seront appliqués par le serveur (Supabase Auth et Row Level Security), jamais par le navigateur seul.</p>
+        <p className="warn-note"><Icon name="alert" size={15} />Les profils sont sélectionnés localement, sans connexion sécurisée. Ne pas utiliser pour contrôler des droits réels ou stocker des données sensibles.</p>
         <div className="perm-table" role="table" aria-label="Autorisations par rôle">
           <div className="perm-row perm-head" role="row"><span role="columnheader">Action</span>{ROLES.map((r) => <span key={r} role="columnheader">{ROLE_LABEL[r]}</span>)}</div>
           {perms.map((p) => (

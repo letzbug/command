@@ -124,7 +124,7 @@ function EventDetail({ id }: { id: string }) {
       <button type="button" className="btn btn-quiet btn-sm back-link" onClick={() => ui.go('projets')}><Icon name="back" size={15} /><span>Projets et événements</span></button>
       <header className="detail-head">
         <div>
-          <p className="pv-kicker">{ev.kind === 'projet' ? 'Projet' : CATEGORY_LABEL[ev.category]}{ev.archived ? ', archivé' : ''}{ev.demo ? ', donnée de démonstration' : ''}</p>
+          <p className="pv-kicker">{ev.kind === 'projet' ? 'Projet' : CATEGORY_LABEL[ev.category]}{ev.archived ? ', archivé' : ''}</p>
           <h1 className="detail-title">{ev.title}</h1>
           <p className="detail-meta">
             <span><Icon name="calendar" size={15} />{formatRange(ev.startDate, ev.endDate)}{ev.startTime ? `, ${ev.startTime}${ev.endTime ? `–${ev.endTime}` : ''}` : ''}</span>

@@ -142,7 +142,7 @@ export function PrintPage() {
               <div className="toggle-grid">
                 <Toggle checked={include.events} onChange={() => toggle('events')} label="Événements" />
                 <Toggle checked={include.projects} onChange={() => toggle('projects')} label="Projets" />
-                <Toggle checked={include.courses} onChange={() => toggle('courses')} label={`Formations${snap?.source === 'demo' ? ' (démo)' : ''}`} />
+                <Toggle checked={include.courses} onChange={() => toggle('courses')} label="Formations" />
                 <Toggle checked={include.deadlines} onChange={() => toggle('deadlines')} label="Échéances" />
                 <Toggle checked={include.milestones} onChange={() => toggle('milestones')} label="Jalons" />
                 <Toggle checked={include.holidays} onChange={() => toggle('holidays')} label="Jours fériés" />

@@ -51,7 +51,7 @@ export function TasksPage() {
         ))}
       </div>
       <TaskList tasks={list} showQuickAdd={current.value !== 'terminees'} groupByEvent={current.value === 'evenement'} doneView={current.value === 'terminees'} eventById={eventById}
-        emptyTitle={current.value === 'retard' ? 'Aucune tâche en retard' : current.value === 'miennes' && !me ? 'Aucun utilisateur de démonstration sélectionné' : 'Aucune tâche dans cette vue'} />
+        emptyTitle={current.value === 'retard' ? 'Aucune tâche en retard' : current.value === 'miennes' && !me ? 'Aucun profil sélectionné' : 'Aucune tâche dans cette vue'} />
     </div>
   );
 }

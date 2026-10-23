@@ -17,13 +17,13 @@ export function buildDemoData(today: ISODate, env?: Partial<Record<string, strin
   const created = [{ at: stamp, text: 'Créé (données de démonstration)' }];
 
   const team: TeamMember[] = [
-    ['ORG-01', 'Direction des opérations', 'personne', 'administrateur', '#1F63D0'],
-    ['ORG-02', 'Coordination des formations', 'personne', 'coordinateur', '#0F8A7A'],
-    ['ORG-03', 'Accueil et inscriptions', 'personne', 'collaborateur', '#7048E8'],
-    ['TECH-01', 'Support technique', 'personne', 'collaborateur', '#B45F06'],
-    ['COM-01', 'Communication', 'personne', 'collaborateur', '#C2416B'],
-    ['EVT', 'Équipe événementielle', 'equipe', 'coordinateur', '#3B4A6B'],
-    ['CONS-01', 'Consultation (conseil)', 'personne', 'lecture_seule', '#6B7280'],
+    ['YVES', 'Communication', 'personne', 'administrateur', '#C2416B'],
+    ['SONJA', 'Coordination des formations', 'personne', 'coordinateur', '#0F8A7A'],
+    ['MARIA', 'Accueil et inscriptions', 'personne', 'collaborateur', '#7048E8'],
+    ['STUP', 'Support technique', 'personne', 'collaborateur', '#B45F06'],
+    ['GILLES', 'Formations UniPop', 'personne', 'collaborateur', '#1F63D0'],
+    ['FRANK', 'Event / Formations', 'equipe', 'coordinateur', '#3B4A6B'],
+    ['EXPLOSE', 'Consultation (conseil)', 'personne', 'lecture_seule', '#6B7280'],
   ].map(([code, label, kind, role, color]) => ({
     ...meta, id: uid('mbr'), code, label, kind: kind as TeamMember['kind'], role: role as TeamMember['role'], color, active: true,
   }));
@@ -35,7 +35,7 @@ export function buildDemoData(today: ISODate, env?: Partial<Record<string, strin
   const ev = (p: Partial<PlanningEvent> & Pick<PlanningEvent, 'title' | 'startDate'>): PlanningEvent => {
     const e: PlanningEvent = {
       ...meta, id: uid('evt'), kind: 'evenement', description: '', category: 'autre', location: 'Université Populaire Belval, Esch-sur-Alzette',
-      endDate: p.startDate, startTime: null, endTime: null, organizer: 'UniPop', ownerId: M['ORG-01'], priority: 'normale',
+      endDate: p.startDate, startTime: null, endTime: null, organizer: 'UniPop', ownerId: M['YVES'], priority: 'normale',
       status: 'planifie', notes: '', attachments: [], recurrence: null, exceptions: {}, seriesId: null, templateId: null,
       archived: false, history: created, ...p,
     };
@@ -70,14 +70,14 @@ export function buildDemoData(today: ISODate, env?: Partial<Record<string, strin
   // Q1–Q4: annual coordination project
   const coord = ev({
     kind: 'projet', title: `Coordination annuelle des formations ${Y}`, category: 'formation', startDate: `${Y}-01-05`, endDate: `${Y}-12-18`,
-    ownerId: M['ORG-02'], priority: 'haute', status: 'en_preparation',
+    ownerId: M['SONJA'], priority: 'haute', status: 'en_preparation',
     description: 'Pilotage des programmes saisonniers : appels aux formateurs, validation, publication et bilans.',
   });
-  task({ title: 'Programme de printemps validé', eventId: coord.id, assigneeId: M['ORG-02'], startDate: `${Y}-03-13`, dueDate: `${Y}-03-13`, milestone: true, status: 'termine' });
-  task({ title: 'Bilan du programme d’hiver', eventId: coord.id, assigneeId: M['ORG-02'], startDate: `${Y}-03-16`, dueDate: `${Y}-03-27`, status: 'termine' });
-  task({ title: 'Programme d’automne validé', eventId: coord.id, assigneeId: M['ORG-01'], startDate: `${Y}-06-26`, dueDate: `${Y}-06-26`, milestone: true, status: 'termine' });
+  task({ title: 'Programme de printemps validé', eventId: coord.id, assigneeId: M['SONJA'], startDate: `${Y}-03-13`, dueDate: `${Y}-03-13`, milestone: true, status: 'termine' });
+  task({ title: 'Bilan du programme d’hiver', eventId: coord.id, assigneeId: M['SONJA'], startDate: `${Y}-03-16`, dueDate: `${Y}-03-27`, status: 'termine' });
+  task({ title: 'Programme d’automne validé', eventId: coord.id, assigneeId: M['YVES'], startDate: `${Y}-06-26`, dueDate: `${Y}-06-26`, milestone: true, status: 'termine' });
   const survey = task({
-    title: 'Enquête de satisfaction des participants', eventId: coord.id, assigneeId: M['ORG-03'], startDate: addDays(today, -26), dueDate: addDays(today, -5),
+    title: 'Enquête de satisfaction des participants', eventId: coord.id, assigneeId: M['MARIA'], startDate: addDays(today, -26), dueDate: addDays(today, -5),
     status: 'en_cours', progress: 60, priority: 'haute',
     checklist: [
       { id: uid('chk'), text: 'Questionnaire validé', done: true },
@@ -86,8 +86,8 @@ export function buildDemoData(today: ISODate, env?: Partial<Record<string, strin
       { id: uid('chk'), text: 'Synthèse des résultats', done: false },
     ],
   });
-  const call = task({ title: `Programme d’hiver ${Y + 1} : appel aux formateurs`, eventId: coord.id, assigneeId: M['ORG-02'], startDate: addDays(today, -8), dueDate: addDays(today, 12), status: 'en_cours', progress: 30, dependsOn: [survey.id] });
-  task({ title: `Programme d’hiver ${Y + 1} validé`, eventId: coord.id, assigneeId: M['ORG-01'], startDate: `${Y}-12-11`, dueDate: `${Y}-12-11`, milestone: true, priority: 'haute', dependsOn: [call.id] });
+  const call = task({ title: `Programme d’hiver ${Y + 1} : appel aux formateurs`, eventId: coord.id, assigneeId: M['SONJA'], startDate: addDays(today, -8), dueDate: addDays(today, 12), status: 'en_cours', progress: 30, dependsOn: [survey.id] });
+  task({ title: `Programme d’hiver ${Y + 1} validé`, eventId: coord.id, assigneeId: M['YVES'], startDate: `${Y}-12-11`, dueDate: `${Y}-12-11`, milestone: true, priority: 'haute', dependsOn: [call.id] });
 
   // Q1: recurring steering committee (one cancelled and one moved occurrence)
   ev({
@@ -99,13 +99,13 @@ export function buildDemoData(today: ISODate, env?: Partial<Record<string, strin
   ev({ title: 'Remise du rapport d’activité', category: 'institutionnel', startDate: `${Y}-02-27`, priority: 'haute', status: 'termine', recurrence: { freq: 'yearly', interval: 1 } });
 
   // Q1: past conference (template, all done)
-  const conf1 = ev({ title: 'Conférence « Apprendre à tout âge »', category: 'conference', templateId: 'tpl-conference', startDate: `${Y}-03-19`, startTime: '18:30', endTime: '21:00', status: 'termine', ownerId: M['EVT'] });
+  const conf1 = ev({ title: 'Conférence « Apprendre à tout âge »', category: 'conference', templateId: 'tpl-conference', startDate: `${Y}-03-19`, startTime: '18:30', endTime: '21:00', status: 'termine', ownerId: M['FRANK'] });
   fromTemplate(conf1, 'tpl-conference');
 
   // Q2
-  const jpo = ev({ title: 'Journée portes ouvertes de printemps', category: 'portes_ouvertes', templateId: 'tpl-portes-ouvertes', startDate: `${Y}-05-16`, startTime: '10:00', endTime: '17:00', status: 'termine', ownerId: M['EVT'] });
+  const jpo = ev({ title: 'Journée portes ouvertes de printemps', category: 'portes_ouvertes', templateId: 'tpl-portes-ouvertes', startDate: `${Y}-05-16`, startTime: '10:00', endTime: '17:00', status: 'termine', ownerId: M['FRANK'] });
   fromTemplate(jpo, 'tpl-portes-ouvertes');
-  const camp = ev({ kind: 'projet', title: 'Campagne « Programme d’automne »', category: 'campagne', templateId: 'tpl-campagne', startDate: `${Y}-06-15`, endDate: `${Y}-07-26`, status: 'termine', ownerId: M['COM-01'] });
+  const camp = ev({ kind: 'projet', title: 'Campagne « Programme d’automne »', category: 'campagne', templateId: 'tpl-campagne', startDate: `${Y}-06-15`, endDate: `${Y}-07-26`, status: 'termine', ownerId: M['GILLES'] });
   fromTemplate(camp, 'tpl-campagne');
   const ag = ev({
     title: 'Assemblée générale annuelle', category: 'institutionnel', templateId: 'tpl-institutionnel', startDate: `${Y}-06-04`, startTime: '18:00', endTime: '20:00',
@@ -115,50 +115,50 @@ export function buildDemoData(today: ISODate, env?: Partial<Record<string, strin
   fromTemplate(ag, 'tpl-institutionnel', [], { key: `${Y + 1}-06-04`, startDate: `${Y + 1}-06-04` });
 
   // Q3
-  const tech = ev({ kind: 'projet', title: 'Préparation technique de la rentrée', category: 'technique', startDate: `${Y}-07-06`, endDate: `${Y}-09-18`, ownerId: M['TECH-01'], status: 'termine' });
+  const tech = ev({ kind: 'projet', title: 'Préparation technique de la rentrée', category: 'technique', startDate: `${Y}-07-06`, endDate: `${Y}-09-18`, ownerId: M['STUP'], status: 'termine' });
   [
     ['Audit Wi-Fi des salles de Belval', `${Y}-07-06`, `${Y}-07-17`],
     ['Mise à jour des postes de la salle informatique', `${Y}-07-20`, `${Y}-08-14`],
     ['Test de bout en bout des inscriptions en ligne', `${Y}-08-24`, `${Y}-09-04`],
     ['Écrans d’affichage du hall : planning du jour', `${Y}-09-07`, `${Y}-09-18`],
-  ].forEach(([title, s, d]) => task({ title, eventId: tech.id, assigneeId: M['TECH-01'], startDate: s, dueDate: d, status: d < today ? 'termine' : 'en_cours' }));
-  const launch = ev({ title: 'Lancement des cours d’automne', category: 'lancement_cours', templateId: 'tpl-lancement', startDate: `${Y}-09-28`, status: 'termine', ownerId: M['ORG-02'] });
+  ].forEach(([title, s, d]) => task({ title, eventId: tech.id, assigneeId: M['STUP'], startDate: s, dueDate: d, status: d < today ? 'termine' : 'en_cours' }));
+  const launch = ev({ title: 'Lancement des cours d’automne', category: 'lancement_cours', templateId: 'tpl-lancement', startDate: `${Y}-09-28`, status: 'termine', ownerId: M['SONJA'] });
   fromTemplate(launch, 'tpl-lancement');
 
   // Q4: the active event, with overdue preparation
   const confDate = addDays(today, 28);
   const conf2 = ev({
     title: 'Conférence « IA et formation des adultes »', category: 'conference', templateId: 'tpl-conference', startDate: confDate, startTime: '18:30', endTime: '21:00',
-    status: 'en_preparation', priority: 'haute', ownerId: M['EVT'],
+    status: 'en_preparation', priority: 'haute', ownerId: M['FRANK'],
     description: 'Table ronde sur les usages de l’intelligence artificielle dans la formation continue, suivie d’ateliers découverte.',
   });
   fromTemplate(conf2, 'tpl-conference', ['Lancer la communication', 'Ouvrir les inscriptions']);
 
-  const soiree = ev({ title: 'Soirée des formateurs', category: 'institutionnel', startDate: addDays(today, 42), startTime: '18:30', endTime: '22:00', ownerId: M['ORG-01'], location: 'Foyer, Belval' });
+  const soiree = ev({ title: 'Soirée des formateurs', category: 'institutionnel', startDate: addDays(today, 42), startTime: '18:30', endTime: '22:00', ownerId: M['YVES'], location: 'Foyer, Belval' });
   task({ title: 'Réserver la salle', eventId: soiree.id, startDate: addDays(today, -2), dueDate: addDays(today, 3), priority: 'haute' });
-  task({ title: 'Envoyer les invitations aux formateurs', eventId: soiree.id, assigneeId: M['ORG-03'], startDate: addDays(today, 5), dueDate: addDays(today, 10) });
-  task({ title: 'Commander le traiteur', eventId: soiree.id, assigneeId: M['EVT'], startDate: addDays(today, 20), dueDate: addDays(today, 30) });
+  task({ title: 'Envoyer les invitations aux formateurs', eventId: soiree.id, assigneeId: M['MARIA'], startDate: addDays(today, 5), dueDate: addDays(today, 10) });
+  task({ title: 'Commander le traiteur', eventId: soiree.id, assigneeId: M['FRANK'], startDate: addDays(today, 20), dueDate: addDays(today, 30) });
 
   ev({ title: 'Bilan annuel et planification', category: 'institutionnel', startDate: `${Y}-12-10`, startTime: '09:00', endTime: '16:00', priority: 'haute', recurrence: { freq: 'yearly', interval: 1 }, location: 'Salle du conseil, Belval' });
 
   // Standalone tasks
-  task({ title: 'Renouveler les licences logicielles', assigneeId: M['TECH-01'], startDate: addDays(today, -14), dueDate: addDays(today, -3), priority: 'haute' });
-  task({ title: 'Mettre à jour la charte des supports imprimés', assigneeId: M['COM-01'], startDate: addDays(today, 2), dueDate: addDays(today, 20), status: 'en_attente', notes: 'En attente des nouveaux gabarits.' });
+  task({ title: 'Renouveler les licences logicielles', assigneeId: M['STUP'], startDate: addDays(today, -14), dueDate: addDays(today, -3), priority: 'haute' });
+  task({ title: 'Mettre à jour la charte des supports imprimés', assigneeId: M['GILLES'], startDate: addDays(today, 2), dueDate: addDays(today, 20), status: 'en_attente', notes: 'En attente des nouveaux gabarits.' });
   task({ title: 'Inventaire du matériel de projection', startDate: addDays(today, 4), dueDate: addDays(today, 9) });
   task({
-    title: `Préparer le budget formations ${Y + 1}`, assigneeId: M['ORG-01'], startDate: addDays(today, -10), dueDate: ymd(Y, 11, 30) > today ? ymd(Y, 11, 30) : addDays(today, 30),
+    title: `Préparer le budget formations ${Y + 1}`, assigneeId: M['YVES'], startDate: addDays(today, -10), dueDate: ymd(Y, 11, 30) > today ? ymd(Y, 11, 30) : addDays(today, 30),
     status: 'en_cours', progress: 40, priority: 'critique',
     checklist: [
       { id: uid('chk'), text: 'Coûts formateurs par thème', done: true },
       { id: uid('chk'), text: 'Locations de salles', done: false },
       { id: uid('chk'), text: 'Validation direction', done: false },
     ],
-    comments: [{ id: uid('cmt'), authorId: M['ORG-01'], text: 'Reprendre la ventilation par trimestre de l’an dernier.', at: stamp }],
+    comments: [{ id: uid('cmt'), authorId: M['YVES'], text: 'Reprendre la ventilation par trimestre de l’an dernier.', at: stamp }],
   });
 
   // Keep the demo coherent if "today" is very early in the year (all dates stay valid).
   for (const t of tasks) if (t.startDate && t.dueDate && diffDays(t.dueDate, t.startDate) < 0) t.startDate = t.dueDate;
 
-  const settings = { ...defaultSettings(env), currentUserId: M['ORG-01'] };
+  const settings = { ...defaultSettings(env), currentUserId: M['YVES'] };
   return { events, tasks, team, reminders: [], settings };
 }

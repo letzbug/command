@@ -15,7 +15,7 @@ export function CourseSourceBar() {
   const syncing = useAppState((s) => s.courseSyncing);
   const url = useAppState((s) => s.settings.courseSourceUrl);
   const fileRef = useRef<HTMLInputElement>(null);
-  const label = snap?.source === 'live' ? 'Synchronisé avec la source UniPop' : snap?.source === 'file' ? `Fichier importé : ${snap.fileName ?? 'trainings.json'}` : 'Données de démonstration';
+  const label = snap?.source === 'live' ? 'Synchronisé avec la source UniPop' : snap?.source === 'file' ? `Fichier importé : ${snap.fileName ?? 'trainings.json'}` : 'Source UniPop non synchronisée';
   const refresh = async () => {
     const s = await store.refreshCourses();
     if (s.source === 'live' && !s.warning) ui.toast(`${s.courses.length} formations synchronisées`, 'success');
@@ -109,7 +109,7 @@ function CourseRow({ c }: { c: Course }) {
   const full = !!c.capacity && (c.enrolled ?? 0) >= c.capacity;
   return (
     <button type="button" role="row" className="crow" onClick={() => void ui.openPanel({ kind: 'course', id: c.id })}>
-      <span role="cell" className="c-title"><b>{c.title}</b><small><span className="tchip">{c.theme}</span>{c.code}</small></span>
+      <span role="cell" className="c-title"><b>{c.title}</b>{c.trainer ? <small>Formateur : {c.trainer}</small> : null}<small><span className="tchip">{c.theme}</span>{c.code}</small></span>
       <span role="cell" className="c-dates">{formatRange(c.startDate, c.endDate)}<small>{c.sessions.length} séance{c.sessions.length > 1 ? 's' : ''}{c.sessions.some((s) => s.estimated) ? ' (estimées)' : ''}</small></span>
       <span role="cell" className="c-loc">{c.location}{c.room ? <small>Salle {c.room}</small> : c.locality && c.locality !== c.location ? <small>{c.locality}</small> : null}</span>
       <span role="cell" className={`c-seats ${full ? 'is-full' : ''}`}>{c.capacity ? <><b>{c.enrolled ?? '?'}/{c.capacity}</b><Progress value={((c.enrolled ?? 0) / c.capacity) * 100} tone={full ? 'bad' : undefined} /></> : '—'}</span>

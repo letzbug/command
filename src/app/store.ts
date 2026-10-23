@@ -7,6 +7,7 @@ import type { CourseSnapshot, HistoryEntry, ISODate, OccurrenceOverride, Plannin
 import type { DataStore, PlanningData } from '../data/contracts';
 import { CURRENT_SCHEMA_VERSION, migrate, normalizeEvent, normalizeMember, normalizeSettings, normalizeTask } from '../data/schema';
 import { buildDemoData } from '../data/seed';
+import { defaultSettings } from '../data/schema';
 import { demoSnapshot, needsAutoSync, snapshotFromRaw, syncCourses } from '../integrations/courses/courseService';
 import { ENV } from '../config';
 
@@ -57,9 +58,22 @@ export class AppStore {
     try {
       const meta = await this.repo.meta.get();
       if (!meta) {
-        const demo = buildDemoData(todayISO(), ENV);
-        await this.repo.replaceAll(demo);
-        await this.repo.meta.save({ schemaVersion: CURRENT_SCHEMA_VERSION, createdAt: nowStamp(), seededDemo: true });
+        const stamp = nowStamp();
+        const members: Array<[string, string, Role, string, TeamMember['kind']]> = [
+          ['EXPLOSE', 'Consultation (conseil)', 'lecture_seule', '#6B7280', 'personne'],
+          ['FRANK', 'Event / Formations', 'coordinateur', '#3B4A6B', 'equipe'],
+          ['GILLES', 'Formations UniPop', 'collaborateur', '#1F63D0', 'personne'],
+          ['MARIA', 'Accueil et inscriptions', 'collaborateur', '#7048E8', 'personne'],
+          ['SONJA', 'Coordination des formations', 'coordinateur', '#0F8A7A', 'personne'],
+          ['STUP', 'Support technique', 'collaborateur', '#B45F06', 'personne'],
+          ['YVES', 'Communication', 'administrateur', '#C2416B', 'personne'],
+        ];
+        const team: TeamMember[] = members.map(([code, label, role, color, kind]) => ({
+          id: uid('mbr'), createdAt: stamp, updatedAt: stamp, rev: 1,
+          code, label, role, color, kind, active: true, demo: false,
+        }));
+        await this.repo.replaceAll({ events: [], tasks: [], team, reminders: [], settings: defaultSettings(ENV) });
+        await this.repo.meta.save({ schemaVersion: CURRENT_SCHEMA_VERSION, createdAt: stamp, seededDemo: false });
       } else if (meta.schemaVersion !== CURRENT_SCHEMA_VERSION) {
         const loaded = await this.loadAll();
         const migrated = migrate(loaded, meta.schemaVersion);
@@ -71,9 +85,9 @@ export class AppStore {
       this.set({
         ready: true, events: data.events, tasks: data.tasks, team: data.team, settings: data.settings,
         reminderStates: Object.fromEntries(data.reminders.map((r) => [r.id, r])),
-        courseSnapshot: snapshot ?? demoSnapshot(null),
+        courseSnapshot: snapshot?.source === 'demo' ? null : snapshot,
       });
-      if (needsAutoSync(snapshot, data.settings.courseAutoSyncHours)) void this.refreshCourses();
+      if (needsAutoSync(snapshot?.source === 'demo' ? null : snapshot, data.settings.courseAutoSyncHours)) void this.refreshCourses();
     } catch (e) {
       this.set({ ready: true, fatal: e instanceof Error ? e.message : String(e) });
     }
@@ -366,7 +380,7 @@ export class AppStore {
 
   async deleteMember(id: string, reassignTo: string | null) {
     this.ensure('team.manage');
-    if (id === this.state.settings.currentUserId) throw new Error('Impossible de supprimer l’utilisateur de démonstration actif.');
+    if (id === this.state.settings.currentUserId) throw new Error('Impossible de supprimer l’utilisateur actuellement sélectionné.');
     const tasks = this.state.tasks.filter((t) => t.assigneeId === id).map((t) => this.touch(this.hist({ ...t, assigneeId: reassignTo }, 'Réassignée (membre supprimé)')));
     const events = this.state.events.filter((e) => e.ownerId === id).map((e) => this.touch(this.hist({ ...e, ownerId: reassignTo }, 'Responsable réassigné (membre supprimé)')));
     await this.repo.tasks.upsert(tasks);
@@ -421,7 +435,8 @@ export class AppStore {
   }
 
   async useDemoCourses() {
-    const snap = demoSnapshot('choisies manuellement dans les paramètres.', this.state.courseSnapshot?.lastSuccessAt ?? null);
+    throw new Error('Les formations fictives ne sont pas disponibles.');
+    const snap = demoSnapshot('indisponibles.', this.state.courseSnapshot?.lastSuccessAt ?? null);
     await this.repo.courseCache.save(snap);
     this.set({ courseSnapshot: snap });
   }

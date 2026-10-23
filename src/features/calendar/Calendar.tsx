@@ -225,6 +225,7 @@ function Legend() {
       <span><i className="lg lg-overdue" />En retard</span>
       <span><i className="lg lg-course" />Densité des formations</span>
       <span><i className="lg lg-holiday" />Jour férié</span>
+      <span><i className="lg lg-school" />Vacances scolaires</span>
     </div>
   );
 }
@@ -318,13 +319,14 @@ function MonthRow({ year, month, data, today, selected, onDay, lanes }: {
           const late = dl.some((t) => isOverdue(t, today));
           const courses = data.coursesByDate.get(iso)?.length ?? 0;
           const hol = data.holidays.get(iso);
+          const school = data.schoolBreaks.get(iso);
           const label = [
-            formatDate(iso, 'long'), hol ? `jour férié : ${hol}` : '', occ.length ? `${occ.length} événement(s)` : '',
+            formatDate(iso, 'long'), hol ? `jour férié : ${hol}` : '', school ? `vacances scolaires : ${school}` : '', occ.length ? `${occ.length} événement(s)` : '',
             dl.length ? `${dl.length} échéance(s)` : '', ms.length ? `${ms.length} jalon(s)` : '', courses ? `${courses} séance(s) de formation` : '',
           ].filter(Boolean).join(', ');
           return (
             <button key={d} type="button" data-date={iso} style={{ gridColumn: d }} aria-label={label} onClick={() => onDay(iso)}
-              className={`pcell ${wd >= 5 ? 'is-weekend' : ''} ${hol ? 'is-holiday' : ''} ${iso === today ? 'is-today' : ''} ${iso === selected ? 'is-selected' : ''}`}>
+              className={`pcell ${wd >= 5 ? 'is-weekend' : ''} ${school ? 'is-school-break' : ''} ${hol ? 'is-holiday' : ''} ${iso === today ? 'is-today' : ''} ${iso === selected ? 'is-selected' : ''}`}>
               <span className="pcell-top"><span className="pcell-num">{d}</span><span className="pcell-wd">{WEEKDAY_LETTERS_FR[wd]}</span></span>
               <span className="pcell-mk">
                 {ms.length ? <i className="mk mk-ms" /> : null}
@@ -360,12 +362,14 @@ function HoverPreview({ date, x, y, data }: { date: ISODate; x: number; y: numbe
   const courses = data.coursesByDate.get(date) ?? [];
   const themes = groupByTheme(courses);
   const hol = data.holidays.get(date);
+  const school = data.schoolBreaks.get(date);
   const left = Math.min(Math.max(8, x - 140), (typeof window !== 'undefined' ? window.innerWidth : 1200) - 300);
   const flip = typeof window !== 'undefined' && y > window.innerHeight - 180;
   return (
     <div className="hover-card" style={{ left, top: flip ? undefined : y, bottom: flip ? window.innerHeight - y + 60 : undefined }} role="tooltip">
       <strong>{capitalize(formatDate(date, 'long'))}</strong>
       {hol ? <span className="hc-hol">{hol}</span> : null}
+      {school ? <span className="hc-school">{school}</span> : null}
       {occ.slice(0, 3).map((o) => <span key={o.event.id + o.key} className="hc-row"><i className={`dot dot-${o.event.kind}`} />{o.title}</span>)}
       {occ.length > 3 ? <span className="hc-muted">+{occ.length - 3} autres événements</span> : null}
       {due.slice(0, 3).map((t) => <span key={t.id} className="hc-row"><i className={`dot ${t.milestone ? 'dot-ms' : 'dot-dl'}`} />{t.title}</span>)}
@@ -416,11 +420,12 @@ export function MonthGrid({ year, month, data, today, selected, onDay, onTheme, 
         const due = data.dueByDate.get(d) ?? [];
         const themes = groupByTheme(data.coursesByDate.get(d) ?? []);
         const hol = data.holidays.get(d);
+        const school = data.schoolBreaks.get(d);
         const hidden = Math.max(0, occ.length - maxEv) + Math.max(0, due.length - (density === 'full' ? 3 : 1)) + Math.max(0, themes.length - maxTh);
         return (
-          <div key={d} role="gridcell" className={`mcell ${weekdayMon0(d) >= 5 ? 'is-weekend' : ''} ${hol ? 'is-holiday' : ''} ${d === today ? 'is-today' : ''} ${d === selected ? 'is-selected' : ''}`}>
+          <div key={d} role="gridcell" className={`mcell ${weekdayMon0(d) >= 5 ? 'is-weekend' : ''} ${school ? 'is-school-break' : ''} ${hol ? 'is-holiday' : ''} ${d === today ? 'is-today' : ''} ${d === selected ? 'is-selected' : ''}`}>
             <button type="button" className="mcell-head" onClick={() => onDay(d)} aria-label={`Ouvrir le ${formatDate(d, 'long')}`}>
-              <span className="mcell-num">{parts(d)[2]}</span>{hol && density === 'full' ? <span className="mcell-hol">{hol}</span> : null}
+              <span className="mcell-num">{parts(d)[2]}</span>{hol && density === 'full' ? <span className="mcell-hol">{hol}</span> : school && density === 'full' ? <span className="mcell-school" title={school}>Vacances</span> : null}
             </button>
             <div className="mcell-items">
               {occ.slice(0, maxEv).map((o) => (
@@ -459,12 +464,14 @@ function WeekView({ focus, data, today, onDay, onTheme }: {
         const due = data.dueByDate.get(d) ?? [];
         const themes = groupByTheme(data.coursesByDate.get(d) ?? []);
         const hol = data.holidays.get(d);
+        const school = data.schoolBreaks.get(d);
         return (
-          <div key={d} className={`wcol ${d === today ? 'is-today' : ''} ${weekdayMon0(d) >= 5 ? 'is-weekend' : ''}`}>
+          <div key={d} className={`wcol ${d === today ? 'is-today' : ''} ${weekdayMon0(d) >= 5 ? 'is-weekend' : ''} ${school ? 'is-school-break' : ''}`}>
             <button type="button" className="wcol-head" onClick={() => onDay(d)}>
               <span>{WEEKDAYS_SHORT_FR[weekdayMon0(d)]}</span><b>{parts(d)[2]}</b>
             </button>
             {hol ? <div className="wcol-hol">{hol}</div> : null}
+            {school ? <div className="wcol-school">{school}</div> : null}
             {occ.map((o) => (
               <button key={o.event.id + o.key} type="button" className={`wcard wcard-${o.event.kind}`} onClick={() => openEvent(o.event.id, o.key)}>
                 <span className="wcard-time">{o.startTime && o.startDate === d ? `${o.startTime}${o.endTime ? `–${o.endTime}` : ''}` : o.startDate !== o.endDate ? 'Plusieurs jours' : 'Journée'}</span>
@@ -490,7 +497,7 @@ function WeekView({ focus, data, today, onDay, onTheme }: {
 }
 
 function AgendaView({ data, from, to, today, onMore }: { data: CalendarData; from: ISODate; to: ISODate; today: ISODate; onMore: () => void }) {
-  const days = [...eachDay(from, to)].filter((d) => data.occByDate.has(d) || data.dueByDate.has(d) || data.coursesByDate.has(d) || data.holidays.has(d));
+  const days = [...eachDay(from, to)].filter((d) => data.occByDate.has(d) || data.dueByDate.has(d) || data.coursesByDate.has(d) || data.holidays.has(d) || data.schoolBreaks.has(d));
   return (
     <div className="agenda">
       {days.length ? days.map((d) => (

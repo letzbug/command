@@ -1,6 +1,4 @@
-import { todayISO } from '../../domain/dates';
 import type { CourseSnapshot } from '../../domain/types';
-import { demoCourses } from './demoCourses';
 import { mapUniPopCourses } from './unipopAdapter';
 
 /**
@@ -9,7 +7,7 @@ import { mapUniPopCourses } from './unipopAdapter';
  * URL so a Cloudflare Worker proxy can replace the origin without code changes
  * (see workers/course-sync and docs/CLOUDFLARE.md).
  */
-export const DEFAULT_COURSE_SOURCE = 'https://www.unipop.lu/private/trainings.json';
+export const DEFAULT_COURSE_SOURCE = 'https://raw.githubusercontent.com/letzbug/franks_magic/e82ac606f325b5c7bc2bf5e68eb95aa538ac4403/data/trainings.json';
 
 export class CourseSyncError extends Error {
   constructor(message: string, readonly reason: 'network' | 'http' | 'auth' | 'format') {
@@ -59,19 +57,9 @@ export function snapshotFromRaw(raw: unknown, source: CourseSnapshot['source'], 
 }
 
 export function demoSnapshot(reason: string | null, previousSuccess: string | null = null): CourseSnapshot {
-  const year = Number(todayISO().slice(0, 4));
-  const { courses } = mapUniPopCourses(demoCourses(year));
-  return {
-    source: 'demo',
-    sourceUrl: null,
-    fetchedAt: new Date().toISOString(),
-    lastSuccessAt: previousSuccess,
-    warning: reason
-      ? `Données de démonstration affichées : ${reason}`
-      : 'Données de démonstration affichées. Aucune synchronisation avec la source UniPop n’a encore réussi.',
-    skipped: 0,
-    courses,
-  };
+  return { source: 'live', sourceUrl: DEFAULT_COURSE_SOURCE, fileName: null,
+    fetchedAt: new Date().toISOString(), lastSuccessAt: previousSuccess,
+    warning: reason || 'Aucune formation réelle synchronisée.', skipped: 0, courses: [] };
 }
 
 /**
@@ -87,13 +75,14 @@ export async function syncCourses(url: string, previous: CourseSnapshot | null, 
     if (previous && previous.source !== 'demo') {
       return { ...previous, warning: `Dernière tentative échouée — ${msg} Les données affichées datent de la dernière synchronisation réussie.` };
     }
-    return demoSnapshot(msg, previous?.lastSuccessAt ?? null);
+    return { ...demoSnapshot(msg, previous?.lastSuccessAt ?? null), sourceUrl: url };
   }
 }
 
 export function needsAutoSync(snapshot: CourseSnapshot | null, hours: number, now = Date.now()): boolean {
   if (hours <= 0) return false;
   if (!snapshot) return true;
+  if (snapshot.warning && !snapshot.lastSuccessAt) return true;
   const last = Date.parse(snapshot.fetchedAt);
   return !Number.isFinite(last) || now - last > hours * 3_600_000;
 }

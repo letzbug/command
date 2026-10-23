@@ -95,7 +95,6 @@ export function SettingsPage() {
             <Select value={String(s.courseAutoSyncHours)} disabled={!canSettings} onChange={(v) => void run(() => store.updateSettings({ courseAutoSyncHours: Number(v) }), 'Préférence enregistrée')} ariaLabel="Synchronisation"
               options={[{ value: '0', label: 'Manuelle uniquement' }, { value: '6', label: 'Toutes les 6 heures' }, { value: '12', label: 'Toutes les 12 heures' }, { value: '24', label: 'Une fois par jour' }]} />
           </Field>
-          <div className="field"><span className="field-label">Données de démonstration</span><Button onClick={() => void run(() => store.useDemoCourses(), 'Formations de démonstration chargées')}>Utiliser les formations de démo</Button></div>
         </div>
       </section>
 
@@ -143,11 +142,6 @@ export function SettingsPage() {
           <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={(e) => void restore(e.target.files?.[0])} />
         </div>
         <div className="btn-row">
-          <Button icon="refresh" disabled={!canData} onClick={async () => {
-            if (await ui.confirm({ title: 'Réinitialiser les données de démonstration ?', body: 'Toutes les données locales sont remplacées par l’année de démonstration fictive.', confirmLabel: 'Réinitialiser', danger: true })) {
-              await run(() => store.resetDemo(), 'Démo réinitialisée');
-            }
-          }}>Réinitialiser la démo</Button>
           <Button variant="danger" icon="trash" disabled={!canData} onClick={async () => {
             if (await ui.confirm({ title: 'Repartir de zéro ?', body: 'Les événements, tâches et membres sont effacés. Un membre ADMIN-01 est créé pour continuer.', confirmLabel: 'Tout effacer', danger: true })) {
               await run(() => store.startEmpty(), 'Données effacées');
@@ -158,8 +152,8 @@ export function SettingsPage() {
 
       <section className="set-sec about">
         <h3>À propos</h3>
-        <p><b>UniPop COMMAND</b>, planification et coordination, version {APP_VERSION}. Mode démo local : données fictives, sans comptes.</p>
-        <p className="credit">Built by Frank &amp; Cameron</p>
+        <p><b>UniPop COMMAND</b>, planification et coordination, version {APP_VERSION}. Mode local, sans authentification ni synchronisation entre appareils.</p>
+        <p className="credit">Built by Frank G — IBM Certified AI Developer</p>
       </section>
     </div>
   );

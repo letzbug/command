@@ -1,0 +1,10 @@
+CORRECTION SOURCE FORMATIONS — 23/10/2026
+
+Cause : le lien github.com/.../tree/.../data est une page HTML, pas un flux JSON directement utilisable.
+Nouvelle source : raw.githubusercontent.com/.../data/trainings.json (URL complète dans les paramètres de COMMAND).
+Une ancienne URL GitHub "tree/blob" ou l’ancienne URL unipop.lu est automatiquement remplacée à la lecture des paramètres locaux. Les autres paramètres et les données de planification ne sont pas effacés.
+Le filtre strict organisateur.code === "UNIPOP" reste actif.
+
+Déploiement GitHub Pages : remplacer index.html par command-main/index.html, ou publier le contenu de dist-single/index.html selon votre méthode de déploiement existante. Ne pas réinitialiser les données du navigateur.
+Puis faire Formations → Actualiser, et vérifier la présence des formations.
+Attention : l’accès réseau et la politique CORS du navigateur doivent permettre raw.githubusercontent.com ; test en production non effectué.

@@ -46,6 +46,33 @@ export function luxembourgHolidays(year: number): Holiday[] {
   return list.sort((x, y) => x.date.localeCompare(y.date));
 }
 
+/* ---------- Vacances scolaires Luxembourg (MENJE, 2026–2028) ---------- */
+export interface SchoolBreak { start: ISODate; end: ISODate; name: string }
+export const LUX_SCHOOL_BREAKS: SchoolBreak[] = [
+  { start: '2025-12-20', end: '2026-01-04', name: 'Vacances de Noël' },
+  { start: '2026-02-14', end: '2026-02-22', name: 'Congé de Carnaval' },
+  { start: '2026-03-28', end: '2026-04-12', name: 'Vacances de Pâques' },
+  { start: '2026-05-23', end: '2026-05-31', name: 'Congé de Pentecôte' },
+  { start: '2026-07-16', end: '2026-09-14', name: 'Vacances d’été' },
+  { start: '2026-10-31', end: '2026-11-08', name: 'Congé de la Toussaint' },
+  { start: '2026-12-19', end: '2027-01-03', name: 'Vacances de Noël' },
+  { start: '2027-02-06', end: '2027-02-14', name: 'Congé de Carnaval' },
+  { start: '2027-03-27', end: '2027-04-11', name: 'Vacances de Pâques' },
+  { start: '2027-05-29', end: '2027-06-06', name: 'Congé de Pentecôte' },
+  { start: '2027-07-16', end: '2027-09-14', name: 'Vacances d’été' },
+  { start: '2027-10-30', end: '2027-11-07', name: 'Congé de la Toussaint' },
+  { start: '2027-12-18', end: '2028-01-02', name: 'Vacances de Noël' },
+  { start: '2028-02-12', end: '2028-02-20', name: 'Congé de Carnaval' },
+  { start: '2028-04-01', end: '2028-04-16', name: 'Vacances de Pâques' },
+  { start: '2028-05-27', end: '2028-06-04', name: 'Congé de Pentecôte' },
+  { start: '2028-07-15', end: '2028-09-14', name: 'Vacances d’été' },
+  { start: '2028-10-28', end: '2028-11-05', name: 'Congé de la Toussaint' },
+  { start: '2028-12-16', end: '2028-12-31', name: 'Vacances de Noël' },
+];
+export function schoolBreakOn(date: ISODate): string | undefined {
+  return LUX_SCHOOL_BREAKS.find((v) => date >= v.start && date <= v.end)?.name;
+}
+
 /* ---------- Labels (French UI vocabulary, one source of truth) ---------- */
 
 export const TASK_STATUS_LABEL: Record<TaskStatus, string> = {
