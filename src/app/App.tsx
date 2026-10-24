@@ -14,6 +14,7 @@ import { CommandPalette, NAV } from '../features/search/CommandPalette';
 import { SettingsPage } from '../features/settings/SettingsPage';
 import { TaskPanel, TasksPage } from '../features/tasks/TasksPage';
 import { TeamPage } from '../features/team/TeamPage';
+import { LiveMapSection } from '../features/team/LiveMapSection';
 import { Icon } from '../ui/icons';
 import { Button } from '../ui/kit';
 import { ContextMenu, DialogHost, menuAt, PanelHost, Toasts } from '../ui/overlays';
@@ -30,6 +31,7 @@ const TITLES: Record<Route, { title: string; sub?: string }> = {
   rappels: { title: 'Rappels' },
   formations: { title: 'Formations', sub: 'Offre de cours UniPop, en lecture seule' },
   equipe: { title: 'Équipe' },
+  carte: { title: 'UniPop Live Map', sub: 'Le Luxembourg en mouvement' },
   impression: { title: 'Impression & exports', sub: 'Affiches A0 à A4 et checklists, en PDF vectoriel' },
   parametres: { title: 'Paramètres' },
 };
@@ -149,6 +151,7 @@ function Pages() {
     case 'rappels': return <RemindersPage />;
     case 'formations': return <CoursesPage />;
     case 'equipe': return <TeamPage />;
+    case 'carte': return <div className="page"><LiveMapSection /></div>;
     case 'impression': return <PrintPage />;
     case 'parametres': return <SettingsPage />;
   }

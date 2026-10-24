@@ -83,7 +83,7 @@ export class AppStore {
       const data = await this.loadAll();
       const snapshot = (await this.repo.courseCache.get()) ?? null;
       this.set({
-        ready: true, events: data.events, tasks: data.tasks, team: data.team, settings: data.settings,
+        ready: true, events: data.events.filter((e) => !e.demo), tasks: data.tasks.filter((t) => !t.demo), team: data.team, settings: data.settings,
         reminderStates: Object.fromEntries(data.reminders.map((r) => [r.id, r])),
         courseSnapshot: snapshot?.source === 'demo' ? null : snapshot,
       });

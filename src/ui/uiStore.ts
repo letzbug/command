@@ -3,8 +3,8 @@ import { ConfirmBody } from './ConfirmBody';
 import type { ISODate, PlanningEvent, Task } from '../domain/types';
 import type { IconName } from './icons';
 
-export type Route = 'annee' | 'calendrier' | 'projets' | 'taches' | 'rappels' | 'formations' | 'equipe' | 'impression' | 'parametres';
-export const ROUTES: Route[] = ['annee', 'calendrier', 'projets', 'taches', 'rappels', 'formations', 'equipe', 'impression', 'parametres'];
+export type Route = 'annee' | 'calendrier' | 'projets' | 'taches' | 'rappels' | 'formations' | 'equipe' | 'carte' | 'impression' | 'parametres';
+export const ROUTES: Route[] = ['annee', 'calendrier', 'projets', 'taches', 'rappels', 'formations', 'equipe', 'carte', 'impression', 'parametres'];
 
 export type CalMode = 'annee' | 'trimestre' | 'mois' | 'semaine' | 'jour';
 export type LayerKey = 'evenement' | 'projet' | 'formation' | 'echeance' | 'jalon' | 'ferie';

@@ -1,0 +1,10 @@
+UniPop COMMAND Live Map – corrections v4
+
+- Masquage central des événements et tâches marqués demo=true, quelle que soit la vue (sans supprimer les données locales existantes).
+- Le planning annuel conserve également son filtre de démonstration.
+- Bouton « Ouvrir la carte ↗ » au-dessus de la Live Map, ouvre carte.html dans un nouvel onglet.
+- Suppression de la mention « Fond de carte : ACT… » sur carte.html.
+- Le pied de page affiche toujours « Cours UniPop, mise à jour : … » à droite.
+- L'espacement du fil de la journée est conservé.
+
+IMPORTANT : Les fichiers dist-single déjà compilés dans la livraison d'origine ne sont pas reconstruits dans cette archive. Pour déployer les changements, exécuter npm install puis npm run build:single dans un environnement de développement disposant des dépendances. Mettre ensuite en ligne les sorties compilées. Ne pas déployer les anciennes sorties dist-single.

@@ -8,7 +8,7 @@ import {
 } from '../../domain/dates';
 import { isOverdue } from '../../domain/planning';
 import type { Occurrence } from '../../domain/recurrence';
-import type { ISODate } from '../../domain/types';
+import type { ISODate, Task } from '../../domain/types';
 import { groupByTheme, shortLabel } from '../../integrations/courses/unipopAdapter';
 import { Icon } from '../../ui/icons';
 import { Button, IconButton, Segmented, Select, useIsMobile, useMediaQuery } from '../../ui/kit';
@@ -261,6 +261,14 @@ function YearPlanner({ year, data, today, selected, onDay, onQuarter }: {
   const lanes = wide ? 3 : 2;
   const canHover = useMediaQuery('(hover: hover) and (pointer: fine)');
   const [hover, setHover] = useState<{ date: ISODate; x: number; y: number } | null>(null);
+  const dataNoDemo = useMemo<CalendarData>(() => {
+    const occurrences: Occurrence[] = data.occurrences.filter((o) => !o.event.demo);
+    const occByDate = new Map<ISODate, Occurrence[]>();
+    for (const [date, items] of data.occByDate) occByDate.set(date, items.filter((o) => !o.event.demo));
+    const dueByDate = new Map<ISODate, Task[]>();
+    for (const [date, items] of data.dueByDate) dueByDate.set(date, items.filter((t) => !t.demo));
+    return { ...data, occurrences, occByDate, dueByDate };
+  }, [data]);
   const onOver = (e: React.MouseEvent) => {
     if (!canHover) return;
     const cell = (e.target as HTMLElement).closest<HTMLElement>('[data-date]');
@@ -278,12 +286,12 @@ function YearPlanner({ year, data, today, selected, onDay, onQuarter }: {
           </button>
           <div className="pq-rows">
             {[0, 1, 2].map((i) => (
-              <MonthRow key={i} year={year} month={(q - 1) * 3 + i + 1} data={data} today={today} selected={selected} onDay={onDay} lanes={lanes} />
+              <MonthRow key={i} year={year} month={(q - 1) * 3 + i + 1} data={dataNoDemo} today={today} selected={selected} onDay={onDay} lanes={lanes} />
             ))}
           </div>
         </section>
       ))}
-      {hover ? <HoverPreview date={hover.date} x={hover.x} y={hover.y} data={data} /> : null}
+      {hover ? <HoverPreview date={hover.date} x={hover.x} y={hover.y} data={dataNoDemo} /> : null}
     </div>
   );
 }

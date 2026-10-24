@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": { "types": [] },
-  "include": ["src/domain", "src/data", "src/integrations", "src/print", "src/services", "src/config.ts"]
+  "include": ["src/domain", "src/data", "src/integrations", "src/print", "src/services", "src/livemap/model.ts", "src/livemap/places.ts", "src/livemap/layout.ts", "src/livemap/feed.ts", "src/livemap/config.ts", "src/livemap/geometry.ts", "src/config.ts"]
 }

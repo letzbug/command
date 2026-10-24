@@ -16,6 +16,7 @@ export const NAV: { route: Route; label: string; icon: IconName }[] = [
   { route: 'rappels', label: 'Rappels', icon: 'bell' },
   { route: 'formations', label: 'Formations', icon: 'course' },
   { route: 'equipe', label: 'Équipe', icon: 'users' },
+  { route: 'carte', label: 'UniPop Live Map', icon: 'map' },
   { route: 'impression', label: 'Impression & exports', icon: 'printer' },
   { route: 'parametres', label: 'Paramètres', icon: 'settings' },
 ];
