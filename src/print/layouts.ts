@@ -390,7 +390,7 @@ export function layoutOperational(input: OpsInput, m: Measure): PrintDoc {
 export interface ChecklistInput {
   title: string;
   lines: [string, string][]; // label, value
-  tasks: { title: string; owner: string; due: string; status: string; done: boolean; milestone: boolean; overdue: boolean }[];
+  tasks: { title: string; description: string; owner: string; due: string; status: string; done: boolean; milestone: boolean; overdue: boolean }[];
   generatedText: string;
   notesLines: number;
 }
@@ -432,7 +432,9 @@ export function layoutChecklist(input: ChecklistInput, m: Measure): PrintDoc {
 
   input.tasks.forEach((t, i) => {
     const titleLines = wrapText(m, (t.milestone ? '[Jalon] ' : '') + t.title, cols.title - 3, rowFont, 2);
-    const rh = Math.max(8, titleLines.length * lineH + 3.5);
+    const descriptionLines = t.description?.trim() ? wrapText(m, t.description, cols.title - 5, 8, 5) : [];
+    const descriptionH = descriptionLines.length ? descriptionLines.length * (8 * PT_TO_MM * 1.25) + 1.2 : 0;
+    const rh = Math.max(8, titleLines.length * lineH + 3.5 + descriptionH);
     if (y + rh > H - margin - footer) {
       pb = new PageBuilder(W, H, m);
       pages.push(pb);
@@ -448,6 +450,11 @@ export function layoutChecklist(input: ChecklistInput, m: Measure): PrintDoc {
     }
     let x = margin + cols.box;
     titleLines.forEach((ln, li) => pb.text(x + 1, y + 2 + (li + 1) * lineH - 0.6, ln, rowFont, t.done ? C.muted : C.text));
+    if (descriptionLines.length) {
+      const descLineH = 8 * PT_TO_MM * 1.25;
+      const descTop = y + 2 + titleLines.length * lineH + 1.0;
+      descriptionLines.forEach((ln, li) => pb.text(x + 1, descTop + (li + 1) * descLineH - 0.6, ln, 8, C.muted));
+    }
     x += cols.title;
     const ty = y + rh / 2 + rowFont * PT_TO_MM * 0.36;
     pb.text(x + 1, ty, t.owner, rowFont, C.text, { maxW: cols.owner - 2 }); x += cols.owner;

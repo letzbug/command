@@ -147,7 +147,7 @@ export function buildChecklistInput(data: PrintData, eventId: string, occurrence
       ['Avancement', `${p.done} / ${p.total} tâches terminées (${p.pct} %)`],
     ],
     tasks: tasks.map((t) => ({
-      title: t.title, owner: code(t.assigneeId), due: t.dueDate ? formatDate(t.dueDate, 'numeric') : '—',
+      title: t.title, description: t.description ?? '', owner: code(t.assigneeId), due: t.dueDate ? formatDate(t.dueDate, 'numeric') : '—',
       status: TASK_STATUS_LABEL[t.status], done: isDone(t), milestone: t.milestone, overdue: isOverdue(t, data.today),
     })),
     generatedText: `UniPop COMMAND — généré le ${formatTimestamp(new Date().toISOString())}`,
