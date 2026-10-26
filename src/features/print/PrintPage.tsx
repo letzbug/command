@@ -103,6 +103,24 @@ export function PrintPage() {
     }
   };
 
+  const prepareEmail = () => {
+    if (tpl !== 'checklist' || !checkEvent) return;
+    const checklist = buildChecklistInput(data, checkEvent);
+    const details = checklist.tasks.map((t) => [
+      `${t.done ? '[x]' : '[ ]'} ${t.title}`,
+      t.description?.trim() ? `   ${t.description.trim()}` : '',
+      `   Responsable : ${t.owner} | Échéance : ${t.due} | ${t.status}`,
+    ].filter(Boolean).join('\n')).join('\n\n');
+    const body = [
+      `Bonjour,`, '',
+      `Voici la liste de contrôle pour « ${checklist.title} ».`, '',
+      ...checklist.lines.map(([label, value]) => `${label} : ${value}`),
+      '', details, '', 'Cordialement,',
+    ].join('\n');
+    // mailto opens a draft; the PDF must be attached manually by the user.
+    window.location.href = `mailto:?subject=${encodeURIComponent(`UniPop COMMAND — ${checklist.title}`)}&body=${encodeURIComponent(body)}`;
+  };
+
   const printNow = () => {
     if (!doc) return;
     const style = document.createElement('style');
@@ -169,6 +187,7 @@ export function PrintPage() {
         <div className="print-actions">
           <Button variant="primary" icon="download" disabled={!doc || busy} onClick={() => void download()}>{busy ? 'Génération…' : `Télécharger le PDF ${fmt}`}</Button>
           {!isFramedHost() ? <Button icon="printer" disabled={!doc} onClick={printNow}>Imprimer</Button> : null}
+          {tpl === 'checklist' ? <Button variant="secondary" disabled={!doc} onClick={prepareEmail}>Préparer un e-mail</Button> : null}
         </div>
         <p className="form-note">PDF vectoriel ({fmt} {ori === 'landscape' ? 'paysage' : 'portrait'}) : textes et formes restent nets à toutes les tailles, sans capture d’écran agrandie.</p>
       </div>
