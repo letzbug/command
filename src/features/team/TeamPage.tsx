@@ -65,7 +65,7 @@ export function DemoUserSwitch() {
     <div className="demo-user">
       <Field label="Profil de travail" hint={current ? `Rôle affiché : ${ROLE_LABEL[current.role]}. Aucune authentification : ce sélecteur n’est pas une sécurité.` : 'Aucun utilisateur : droits administrateur par défaut.'}>
         <Select value={me ?? ''} onChange={(v) => void run(() => store.updateSettings({ currentUserId: v || null }, { asUserSwitch: true }), 'Profil de travail changé')} ariaLabel="Profil de travail"
-          options={[{ value: '', label: 'Aucun' }, ...activeTeam.map((m) => ({ value: m.id, label: `${m.code} — ${ROLE_LABEL[m.role]}` }))]} />
+          options={[{ value: '', label: 'Aucun' }, ...activeTeam.map((m) => ({ value: m.id, label: `${m.code === 'ADMIN-01' ? 'Frank_A' : (m.label?.trim() || 'Membre')} — ${ROLE_LABEL[m.role]}` }))]} />
       </Field>
     </div>
   );
