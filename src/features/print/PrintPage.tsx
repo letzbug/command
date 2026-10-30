@@ -8,7 +8,7 @@ import { AnnualOptions, layoutAnnual, layoutChecklist, layoutOperational } from 
 import { Measure, Orientation, PaperFormat, PrintDoc, PrintPage as Page, PT_TO_MM } from '../../print/model';
 import { isFramedHost, saveFile, saveMessage } from '../../services/fileSaver';
 import { Icon } from '../../ui/icons';
-import { Button, Field, Segmented, Select, Toggle } from '../../ui/kit';
+import { Button, Field, Segmented, Select, Toggle, memberDisplayName } from '../../ui/kit';
 import { ui } from '../../ui/uiStore';
 
 type Template = 'annuel' | 'operationnel' | 'checklist';
@@ -151,7 +151,7 @@ export function PrintPage() {
             <Field label="Format"><Segmented ariaLabel="Format" size="sm" value={format} onChange={setFormat} options={(['A0', 'A1', 'A3', 'A4'] as PaperFormat[]).map((f) => ({ value: f, label: f }))} /></Field>
             <Field label="Orientation"><Segmented ariaLabel="Orientation" size="sm" value={orientation} onChange={setOrientation} options={[{ value: 'landscape', label: 'Paysage' }, { value: 'portrait', label: 'Portrait' }]} /></Field>
             <Field label="Année"><Select value={String(year)} onChange={(v) => setYear(Number(v))} ariaLabel="Année" options={[year0 - 1, year0, year0 + 1, year0 + 2].map((y) => ({ value: String(y), label: String(y) }))} /></Field>
-            <Field label="Responsable"><Select value={ownerId} onChange={setOwnerId} ariaLabel="Responsable" options={[{ value: '', label: 'Toute l’équipe' }, ...sortedTeam.map((m) => ({ value: m.id, label: m.code }))]} /></Field>
+            <Field label="Responsable"><Select value={ownerId} onChange={setOwnerId} ariaLabel="Responsable" options={[{ value: '', label: 'Toute l’équipe' }, ...sortedTeam.map((m) => ({ value: m.id, label: memberDisplayName(m) }))]} /></Field>
             <Field label="Projet" wide><Select value={scopeEvent} onChange={setScopeEvent} ariaLabel="Projet" options={[{ value: '', label: 'Tous les projets et événements' }, ...events.filter((e) => !e.archived).map((e) => ({ value: e.id, label: e.title }))]} /></Field>
           </div>
           {format !== 'A0' && format !== 'A1' && tpl === 'annuel' ? <p className="form-note">En {format}, le détail est réduit (titres courts, formations en nombre). Pour l’affichage mural, préférez A0 ou A1.</p> : null}

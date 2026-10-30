@@ -6,6 +6,7 @@ import type { Course, ISODate, PlanningEvent, Task, TeamMember } from '../domain
 import { AnnualCourseDay, AnnualInput, AnnualOptions, ChecklistInput, OpsGroup, OpsInput } from './layouts';
 import { Orientation, PaperFormat } from './model';
 import { encodeQr } from './qr';
+import { memberDisplayName } from '../ui/kit';
 
 export const CATEGORY_SHORT: Record<string, string> = {
   ACP: 'Bien-être', ART: 'Arts', TIC: 'Numérique', LAN: 'Langues', SCM: 'Sciences', SCH: 'Sc. humaines', CIN: 'Nationalité',
@@ -33,7 +34,7 @@ export function validPublicUrl(url: string): string | null {
 
 function scopeText(scope: PrintScope, data: PrintData): string | undefined {
   const parts: string[] = [];
-  if (scope.ownerId) parts.push(`Responsable : ${data.team.find((m) => m.id === scope.ownerId)?.code ?? '?'}`);
+  if (scope.ownerId) parts.push(`Responsable : ${memberDisplayName(data.team.find((m) => m.id === scope.ownerId))}`);
   if (scope.eventId) parts.push(`Projet : ${data.events.find((e) => e.id === scope.eventId)?.title ?? '?'}`);
   return parts.length ? parts.join('  |  ') : undefined;
 }
@@ -88,7 +89,7 @@ export function buildOpsInput(
   data: PrintData,
   o: { format: PaperFormat; orientation: Orientation; rangeStart: ISODate; rangeEnd: ISODate; includeDone: boolean; scope: PrintScope },
 ): OpsInput {
-  const code = (id?: string | null) => data.team.find((m) => m.id === id)?.code ?? '—';
+  const code = (id?: string | null) => memberDisplayName(data.team.find((m) => m.id === id));
   const inRange = (s: ISODate | null, e: ISODate | null) => !!s && !!e && s <= o.rangeEnd && e >= o.rangeStart;
   const toOps = (t: Task) => ({
     title: t.title, start: taskStart(t), due: taskEnd(t), status: t.status, progress: t.progress, milestone: t.milestone,
@@ -130,7 +131,7 @@ export function buildChecklistInput(data: PrintData, eventId: string, occurrence
   if (!e) throw new Error('Événement introuvable.');
   const code = (id?: string | null) => {
     const m = data.team.find((x) => x.id === id);
-    return m ? m.code : 'À assigner';
+    return m ? memberDisplayName(m) : 'À assigner';
   };
   const tasks = data.tasks
     .filter((t) => t.eventId === e.id && (!occurrenceKey || !t.occurrenceKey || t.occurrenceKey === occurrenceKey))
