@@ -1,0 +1,23 @@
+name: Build COMMAND CLOUD RELEASE (manual, no deployment)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build Cloud release index.html
+        run: node scripts/build-command-release.mjs
+      - name: Upload only index.html (no carte.html)
+        uses: actions/upload-artifact@v4
+        with:
+          name: COMMAND-CLOUD-READY-index
+          path: dist-command-release/index.html
+          if-no-files-found: error
