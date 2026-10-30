@@ -146,7 +146,7 @@ function EventDetail({ id }: { id: string }) {
         <div className="overview">
           <section className="ov-main">
             <dl className="facts">
-              <div><dt>Responsable</dt><dd><MemberTag member={owner} />{owner ? ` ${owner.label}` : ''}</dd></div>
+              <div><dt>Responsable</dt><dd><MemberTag member={owner} /></dd></div>
               <div><dt>Organisateur</dt><dd>{ev.organizer || '—'}</dd></div>
               <div><dt>Priorité</dt><dd>{PRIORITY_LABEL[ev.priority]}</dd></div>
               <div><dt>Modèle</dt><dd>{templateById(ev.templateId)?.name ?? 'Aucun'}</dd></div>
