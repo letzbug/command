@@ -124,7 +124,6 @@ export function TeamPage() {
       </section>
       <section>
         <h3 className="list-head">Rôles et autorisations</h3>
-        <p className="warn-note"><Icon name="alert" size={15} />Les profils sont sélectionnés localement, sans connexion sécurisée. Ne pas utiliser pour contrôler des droits réels ou stocker des données sensibles.</p>
         <div className="perm-table" role="table" aria-label="Autorisations par rôle">
           <div className="perm-row perm-head" role="row"><span role="columnheader">Action</span>{ROLES.map((r) => <span key={r} role="columnheader">{ROLE_LABEL[r]}</span>)}</div>
           {perms.map((p) => (
