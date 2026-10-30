@@ -9,7 +9,7 @@ import { nowStamp, PRIORITIES, PRIORITY_LABEL, PRIORITY_RANK, TASK_STATUSES, TAS
 import { matchScore } from '../../domain/search';
 import type { ISODate, Priority, Task, TaskStatus } from '../../domain/types';
 import { Icon } from '../../ui/icons';
-import { Badge, Button, Empty, Field, IconButton, MemberTag, Progress, Segmented, Select, Toggle } from '../../ui/kit';
+import { Badge, Button, Empty, Field, IconButton, MemberTag, Progress, Segmented, Select, Toggle, memberDisplayName } from '../../ui/kit';
 import { menuAt } from '../../ui/overlays';
 import { ui, useUI } from '../../ui/uiStore';
 
@@ -92,7 +92,7 @@ export function TaskList({ tasks, eventId, defaultOccurrence, showQuickAdd, grou
     });
     const saved = await run(() => store.saveTask(t));
     if (saved) {
-      ui.toast(`Tâche ajoutée${saved.assigneeId ? ` et assignée à ${memberById.get(saved.assigneeId)?.code}` : ''}`, 'success');
+      ui.toast(`Tâche ajoutée${saved.assigneeId ? ` et assignée à ${memberDisplayName(memberById.get(saved.assigneeId))}` : ''}`, 'success');
       setQa({ ...qa, title: '' });
       qaRef.current?.focus();
     }
@@ -244,7 +244,7 @@ export function TaskPanel({ id, defaults }: { id?: string | null; defaults?: Par
           <Select value={t.eventId ?? ''} onChange={(v) => set({ eventId: v || null, occurrenceKey: null, dependsOn: [] })} ariaLabel="Événement" options={[{ value: '', label: 'Aucun (hors projet)' }, ...events.filter((e) => !e.archived || e.id === t.eventId).map((e) => ({ value: e.id, label: e.title }))]} />
         </Field>
         <Field label="Responsable">
-          <Select value={t.assigneeId ?? ''} onChange={(v) => set({ assigneeId: v || null })} ariaLabel="Responsable" options={[{ value: '', label: 'Non assignée' }, ...activeTeam.map((m) => ({ value: m.id, label: `${m.code} — ${m.label}` }))]} />
+          <Select value={t.assigneeId ?? ''} onChange={(v) => set({ assigneeId: v || null })} ariaLabel="Responsable" options={[{ value: '', label: 'Non assignée' }, ...activeTeam.map((m) => ({ value: m.id, label: `${memberDisplayName(m)}` }))]} />
         </Field>
         <Field label="Début" error={err('startDate')}><DateFR value={t.startDate ?? ''} onChange={(v) => set({ startDate: v || null })} /></Field>
         <Field label="Échéance" error={err('dueDate')} hint={t.offsetDays != null ? (t.manualDates ? 'Date ajustée à la main : non recalculée automatiquement.' : `Relative à l’événement (J${t.offsetDays >= 0 ? '+' : ''}${t.offsetDays}).`) : undefined}>
@@ -300,7 +300,7 @@ export function TaskPanel({ id, defaults }: { id?: string | null; defaults?: Par
           <legend>Commentaires</legend>
           <ul className="comments">
             {existing.comments.map((c) => (
-              <li key={c.id}><span className="h-who">{memberById.get(c.authorId ?? '')?.code ?? '—'}</span><span className="h-when">{formatTimestamp(c.at)}</span><p>{c.text}</p></li>
+              <li key={c.id}><span className="h-who">{memberDisplayName(memberById.get(c.authorId ?? ''))}</span><span className="h-when">{formatTimestamp(c.at)}</span><p>{c.text}</p></li>
             ))}
             {!existing.comments.length ? <li className="muted">Aucun commentaire.</li> : null}
           </ul>
@@ -309,7 +309,7 @@ export function TaskPanel({ id, defaults }: { id?: string | null; defaults?: Par
             <Button size="sm" disabled={!comment.trim() || !canWrite || dirty} title={dirty ? 'Enregistrez d’abord les modifications' : undefined} onClick={() => void addComment()}>Publier</Button>
           </div>
           <button type="button" className="link-btn" onClick={() => setShowHist((v) => !v)}>{showHist ? 'Masquer l’historique' : `Historique (${existing.history.length})`}</button>
-          {showHist ? <ul className="history">{[...existing.history].reverse().map((h, i) => <li key={i}><span className="h-when">{formatTimestamp(h.at)}</span><span className="h-who">{memberById.get(h.by ?? '')?.code ?? 'Système'}</span><span>{h.text}</span></li>)}</ul> : null}
+          {showHist ? <ul className="history">{[...existing.history].reverse().map((h, i) => <li key={i}><span className="h-when">{formatTimestamp(h.at)}</span><span className="h-who">{(memberById.get(h.by ?? '') ? memberDisplayName(memberById.get(h.by ?? '')) : 'Système')}</span><span>{h.text}</span></li>)}</ul> : null}
         </fieldset>
       ) : null}
 

@@ -8,7 +8,7 @@ import { applyReschedule, EVENT_TEMPLATES, isDone, proposeReschedule, Reschedule
 import { describeRecurrence, findOccurrence, nextOccurrence } from '../../domain/recurrence';
 import { CATEGORIES, CATEGORY_LABEL, EVENT_STATUSES, EVENT_STATUS_LABEL, PRIORITIES, PRIORITY_LABEL } from '../../domain/reference';
 import type { EventCategory, EventKind, EventStatus, ISODate, PlanningEvent, Priority, Recurrence, RecurrenceFreq, Task } from '../../domain/types';
-import { Button, Field, Segmented, Select, Toggle } from '../../ui/kit';
+import { Button, Field, Segmented, Select, Toggle, memberDisplayName } from '../../ui/kit';
 import { ui } from '../../ui/uiStore';
 
 type RepeatMode = 'none' | 'yearly' | 'monthly' | 'weekly' | 'custom';
@@ -271,7 +271,7 @@ export function EventForm({ id, occurrenceKey, defaults }: { id?: string | null;
         </Field>
         {!occMode ? <>
           <Field label="Responsable">
-            <Select value={d.ownerId} onChange={(v) => set({ ownerId: v })} ariaLabel="Responsable" options={[{ value: '', label: 'Non assigné' }, ...activeTeam.map((m) => ({ value: m.id, label: `${m.code} — ${m.label}` }))]} />
+            <Select value={d.ownerId} onChange={(v) => set({ ownerId: v })} ariaLabel="Responsable" options={[{ value: '', label: 'Non assigné' }, ...activeTeam.map((m) => ({ value: m.id, label: `${memberDisplayName(m)}` }))]} />
           </Field>
           <Field label="Organisateur"><input value={d.organizer} onChange={(e) => set({ organizer: e.target.value })} /></Field>
           <Field label="Priorité">

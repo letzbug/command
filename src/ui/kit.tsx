@@ -79,12 +79,18 @@ export function Progress({ value, tone, label }: { value: number; tone?: 'ok' | 
   );
 }
 
+export function memberDisplayName(member?: TeamMember | null): string {
+  if (!member) return '—';
+  if (member.code === 'ADMIN-01') return 'Frank_A';
+  return member.label?.trim() || 'Membre';
+}
+
 export function MemberTag({ member, empty = 'Non assigné' }: { member?: TeamMember | null; empty?: string }) {
   if (!member) return <span className="mtag mtag-empty">{empty}</span>;
   return (
-    <span className="mtag" title={member.label}>
+    <span className="mtag" title={memberDisplayName(member)}>
       <span className="mtag-dot" style={{ background: member.color }} />
-      {member.code}
+      {memberDisplayName(member)}
     </span>
   );
 }

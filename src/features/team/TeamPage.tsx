@@ -6,7 +6,7 @@ import { isDone, isOverdue } from '../../domain/planning';
 import { nowStamp, PERMISSION_LABEL, Permission, ROLE_LABEL, ROLE_PERMISSIONS, ROLES, uid } from '../../domain/reference';
 import type { Role, TeamMember } from '../../domain/types';
 import { Icon } from '../../ui/icons';
-import { Badge, Button, Field, IconButton, MemberTag, Select, Toggle } from '../../ui/kit';
+import { Badge, Button, Field, IconButton, MemberTag, Select, Toggle, memberDisplayName } from '../../ui/kit';
 import { ui } from '../../ui/uiStore';
 
 const SWATCHES = ['#1F63D0', '#0F8A7A', '#7048E8', '#B45F06', '#C2416B', '#3B4A6B', '#2F8F4E', '#6B7280'];
@@ -21,7 +21,7 @@ function MemberBody({ member, close }: { member: TeamMember; close: (v?: unknown
   };
   return (
     <form className="dlg-body" onSubmit={(e) => { e.preventDefault(); void save(); }}>
-      <h2 className="dlg-title">{member.rev ? `Modifier ${member.code}` : 'Nouveau membre'}</h2>
+      <h2 className="dlg-title">{member.rev ? `Modifier ${memberDisplayName(member)}` : 'Nouveau membre'}</h2>
       <p className="dlg-text">Utilisez des identifiants fonctionnels (ORG-01, TECH-01…) plutôt que des noms de personnes.</p>
       <div className="form-grid">
         <Field label="Identifiant" error={error}><input value={m.code} onChange={(e) => setM({ ...m, code: e.target.value.toUpperCase() })} autoFocus required /></Field>
@@ -45,9 +45,9 @@ function DeleteMemberBody({ member, count, others, close }: { member: TeamMember
   const [to, setTo] = useState('');
   return (
     <div className="dlg-body">
-      <h2 className="dlg-title">Supprimer {member.code} ?</h2>
+      <h2 className="dlg-title">Supprimer {memberDisplayName(member)} ?</h2>
       <p className="dlg-text">{count ? `${count} tâche(s) ou événement(s) lui sont attribués. Choisissez qui les reprend.` : 'Aucune attribution en cours.'}</p>
-      {count ? <Select value={to} onChange={setTo} ariaLabel="Réassigner à" options={[{ value: '', label: 'Laisser sans responsable' }, ...others.map((o) => ({ value: o.id, label: `${o.code} — ${o.label}` }))]} /> : null}
+      {count ? <Select value={to} onChange={setTo} ariaLabel="Réassigner à" options={[{ value: '', label: 'Laisser sans responsable' }, ...others.map((o) => ({ value: o.id, label: `${memberDisplayName(o)}` }))]} /> : null}
       <div className="dlg-actions">
         <button type="button" className="btn btn-ghost" onClick={() => close(undefined)}>Annuler</button>
         <button type="button" className="btn btn-danger" onClick={() => close({ to })}>Supprimer</button>
@@ -65,7 +65,7 @@ export function DemoUserSwitch() {
     <div className="demo-user">
       <Field label="Profil de travail" hint={current ? `Rôle affiché : ${ROLE_LABEL[current.role]}. Aucune authentification : ce sélecteur n’est pas une sécurité.` : 'Aucun utilisateur : droits administrateur par défaut.'}>
         <Select value={me ?? ''} onChange={(v) => void run(() => store.updateSettings({ currentUserId: v || null }, { asUserSwitch: true }), 'Profil de travail changé')} ariaLabel="Profil de travail"
-          options={[{ value: '', label: 'Aucun' }, ...activeTeam.map((m) => ({ value: m.id, label: `${m.code === 'ADMIN-01' ? 'Frank_A' : (m.label?.trim() || 'Membre')} — ${ROLE_LABEL[m.role]}` }))]} />
+          options={[{ value: '', label: 'Aucun' }, ...activeTeam.map((m) => ({ value: m.id, label: `${memberDisplayName(m)} — ${ROLE_LABEL[m.role]}` }))]} />
       </Field>
     </div>
   );
@@ -92,7 +92,7 @@ export function TeamPage() {
   const remove = async (m: TeamMember) => {
     const count = tasks.filter((t) => t.assigneeId === m.id).length + events.filter((e) => e.ownerId === m.id).length;
     const r = await ui.openDialog<{ to: string }>((close) => <DeleteMemberBody member={m} count={count} others={team.filter((x) => x.id !== m.id && x.active)} close={close} />, 'md');
-    if (r) await run(() => store.deleteMember(m.id, r.to || null), `${m.code} supprimé`);
+    if (r) await run(() => store.deleteMember(m.id, r.to || null), `${memberDisplayName(m)} supprimé`);
   };
   const perms = Object.keys(PERMISSION_LABEL) as Permission[];
   return (
@@ -107,16 +107,16 @@ export function TeamPage() {
           {load.map(({ m, open, late, events: ev }) => (
             <div key={m.id} className={`member ${m.active ? '' : 'is-inactive'}`}>
               <MemberTag member={m} />
-              <span className="member-label">{m.label}{m.kind === 'equipe' ? <Badge>Équipe</Badge> : null}{!m.active ? <Badge>Inactif</Badge> : null}</span>
+              <span className="member-label">{memberDisplayName(m)}{m.kind === 'equipe' ? <Badge>Équipe</Badge> : null}{!m.active ? <Badge>Inactif</Badge> : null}</span>
               <span className="member-role">{ROLE_LABEL[m.role]}</span>
               <span className="member-load" title={`${open} tâche(s) ouverte(s)`}>
                 <span className="load-bar"><span style={{ width: `${(open / max) * 100}%` }} /><span className="load-late" style={{ width: `${(late / max) * 100}%` }} /></span>
                 <span>{open} ouverte{open > 1 ? 's' : ''}{late ? `, ${late} en retard` : ''}{ev ? `, ${ev} événement${ev > 1 ? 's' : ''}` : ''}</span>
               </span>
               <span className="member-actions">
-                <IconButton icon="tasks" label={`Tâches de ${m.code}`} onClick={() => { ui.set({ taskView: 'toutes' }); ui.go('taches'); ui.toast(`Filtrez par ${m.code} dans la liste des tâches.`, 'info'); }} />
-                <IconButton icon="edit" label={`Modifier ${m.code}`} disabled={!canManage} onClick={() => void edit(m)} />
-                <IconButton icon="trash" label={`Supprimer ${m.code}`} disabled={!canManage} onClick={() => void remove(m)} />
+                <IconButton icon="tasks" label={`Tâches de ${memberDisplayName(m)}`} onClick={() => { ui.set({ taskView: 'toutes' }); ui.go('taches'); ui.toast(`Filtrez par ${memberDisplayName(m)} dans la liste des tâches.`, 'info'); }} />
+                <IconButton icon="edit" label={`Modifier ${memberDisplayName(m)}`} disabled={!canManage} onClick={() => void edit(m)} />
+                <IconButton icon="trash" label={`Supprimer ${memberDisplayName(m)}`} disabled={!canManage} onClick={() => void remove(m)} />
               </span>
             </div>
           ))}

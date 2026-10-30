@@ -11,7 +11,7 @@ import type { Occurrence } from '../../domain/recurrence';
 import type { ISODate, Task } from '../../domain/types';
 import { groupByTheme, shortLabel } from '../../integrations/courses/unipopAdapter';
 import { Icon } from '../../ui/icons';
-import { Button, IconButton, Segmented, Select, useIsMobile, useMediaQuery } from '../../ui/kit';
+import { Button, IconButton, Segmented, Select, useIsMobile, useMediaQuery, memberDisplayName } from '../../ui/kit';
 import { menuAt } from '../../ui/overlays';
 import { ALL_LAYERS, CalFilters, CalMode, DEFAULT_FILTERS, LayerKey, Route, ui, useUI } from '../../ui/uiStore';
 import { Brief } from './Brief';
@@ -181,7 +181,7 @@ function FilterSheet({ onClose }: { onClose: () => void }) {
         <label><span className="fs-label">Projet ou événement</span>
           <Select value={f.eventId} onChange={(v) => set({ eventId: v })} ariaLabel="Projet" options={[{ value: '', label: 'Tous' }, ...events.filter((e) => !e.archived).sort((a, b) => a.title.localeCompare(b.title, 'fr')).map((e) => ({ value: e.id, label: e.title }))]} /></label>
         <label><span className="fs-label">Responsable</span>
-          <Select value={f.ownerId} onChange={(v) => set({ ownerId: v })} ariaLabel="Responsable" options={[{ value: '', label: 'Toute l’équipe' }, ...team.map((m) => ({ value: m.id, label: `${m.code} — ${m.label}` }))]} /></label>
+          <Select value={f.ownerId} onChange={(v) => set({ ownerId: v })} ariaLabel="Responsable" options={[{ value: '', label: 'Toute l’équipe' }, ...team.map((m) => ({ value: m.id, label: `${memberDisplayName(m)}` }))]} /></label>
         <label><span className="fs-label">Statut</span>
           <Select value={f.status} onChange={(v) => set({ status: v })} ariaLabel="Statut" options={[{ value: '', label: 'Tous les statuts' }, { value: 'ouvert', label: 'Ouverts' }, { value: 'en_retard', label: 'En retard' }, { value: 'termine', label: 'Terminés' }]} /></label>
       </div>
@@ -201,7 +201,7 @@ function FilterChips() {
   if (f.location) chips.push({ label: `Lieu : ${f.location}`, clear: { location: '' } });
   if (f.theme) chips.push({ label: `Thème : ${f.theme}`, clear: { theme: '' } });
   if (f.eventId) chips.push({ label: `Projet : ${eventById.get(f.eventId)?.title ?? '?'}`, clear: { eventId: '' } });
-  if (f.ownerId) chips.push({ label: `Responsable : ${memberById.get(f.ownerId)?.code ?? '?'}`, clear: { ownerId: '' } });
+  if (f.ownerId) chips.push({ label: `Responsable : ${memberDisplayName(memberById.get(f.ownerId)) ?? '?'}`, clear: { ownerId: '' } });
   if (f.status) chips.push({ label: `Statut : ${{ ouvert: 'ouverts', en_retard: 'en retard', termine: 'terminés' }[f.status]}`, clear: { status: '' } });
   if (!chips.length) return null;
   return (

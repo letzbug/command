@@ -9,7 +9,7 @@ import { CATEGORY_LABEL, EVENT_STATUSES, EVENT_STATUS_LABEL, PRIORITY_LABEL, uid
 import { matchScore } from '../../domain/search';
 import type { EventStatus, ISODate, PlanningEvent, Task } from '../../domain/types';
 import { Icon } from '../../ui/icons';
-import { Badge, Button, Empty, IconButton, MemberTag, Progress, Segmented, Select, Toggle } from '../../ui/kit';
+import { Badge, Button, Empty, IconButton, MemberTag, Progress, Segmented, Select, Toggle, memberDisplayName } from '../../ui/kit';
 import { menuAt } from '../../ui/overlays';
 import { ui, useUI } from '../../ui/uiStore';
 import { Gantt, GanttGroup } from '../gantt/Gantt';
@@ -188,7 +188,7 @@ function EventDetail({ id }: { id: string }) {
       ) : (
         <ul className="history">
           {[...ev.history].reverse().map((h, i) => (
-            <li key={i}><span className="h-when">{formatTimestamp(h.at)}</span><span className="h-who">{memberById.get(h.by ?? '')?.code ?? 'Système'}</span><span>{h.text}</span></li>
+            <li key={i}><span className="h-when">{formatTimestamp(h.at)}</span><span className="h-who">{(memberById.get(h.by ?? '') ? memberDisplayName(memberById.get(h.by ?? '')) : 'Système')}</span><span>{h.text}</span></li>
           ))}
         </ul>
       )}

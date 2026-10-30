@@ -16,7 +16,7 @@ import { TaskPanel, TasksPage } from '../features/tasks/TasksPage';
 import { TeamPage } from '../features/team/TeamPage';
 import { LiveMapSection } from '../features/team/LiveMapSection';
 import { Icon } from '../ui/icons';
-import { Button } from '../ui/kit';
+import { Button, memberDisplayName } from '../ui/kit';
 import { ContextMenu, DialogHost, menuAt, PanelHost, Toasts } from '../ui/overlays';
 import { Panel, Route, ui, useUI } from '../ui/uiStore';
 import { newEvent, newTask } from './actions';
@@ -88,7 +88,7 @@ function Sidebar() {
       <div className="sidebar-foot">
         <button type="button" className="demo-chip" onClick={() => ui.go('equipe')} title="Sélection de profil local : sans authentification">
           <span className="demo-dot" />
-          <span><b>Profil sélectionné</b><small>{me ? `${me.code}, ${ROLE_LABEL[me.role].toLowerCase()}` : 'Aucun utilisateur'}</small></span>
+          <span><b>Profil sélectionné</b><small>{me ? `${memberDisplayName(me)}, ${ROLE_LABEL[me.role].toLowerCase()}` : 'Aucun utilisateur'}</small></span>
         </button>
         <p className="credit">Built by Frank G<br /><strong>IBM Certified AI Developer</strong></p>
       </div>
