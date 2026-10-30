@@ -1,3 +1,4 @@
+import { DateFR } from '../../ui/DateFR';
 import { useEffect, useMemo, useState } from 'react';
 import { attempt, run } from '../../app/actions';
 import { useKnownLocations, useLookups } from '../../app/derived';
@@ -257,8 +258,8 @@ export function EventForm({ id, occurrenceKey, defaults }: { id?: string | null;
             <Select value={d.category} onChange={(v) => set({ category: v })} ariaLabel="Catégorie" options={CATEGORIES.map((c) => ({ value: c, label: CATEGORY_LABEL[c] }))} />
           </Field>
         ) : null}
-        <Field label="Début" error={err('startDate')}><input type="date" value={d.startDate} onChange={(e) => setStart(e.target.value)} required /></Field>
-        <Field label="Fin" error={err('endDate')}><input type="date" value={d.endDate} min={d.startDate} onChange={(e) => set({ endDate: e.target.value })} required /></Field>
+        <Field label="Début" error={err('startDate')}><DateFR value={d.startDate} onChange={(v) => setStart(v)} required /></Field>
+        <Field label="Fin" error={err('endDate')}><DateFR value={d.endDate} min={d.startDate} onChange={(v) => set({ endDate: v })} required /></Field>
         <div className="field field-wide"><Toggle checked={d.allDay} onChange={(v) => set({ allDay: v })} label="Toute la journée" /></div>
         {!d.allDay ? <>
           <Field label="Heure de début"><input type="time" step={300} value={d.startTime} onChange={(e) => set({ startTime: e.target.value })} /></Field>
@@ -304,7 +305,7 @@ export function EventForm({ id, occurrenceKey, defaults }: { id?: string | null;
               <Field label="Fin de la répétition">
                 <Select value={d.endMode} onChange={(v) => set({ endMode: v })} ariaLabel="Fin" options={[{ value: 'never', label: 'Jamais' }, { value: 'until', label: 'À une date' }, { value: 'count', label: 'Après un nombre d’occurrences' }]} />
               </Field>
-              {d.endMode === 'until' ? <Field label="Jusqu’au" error={err('until')}><input type="date" value={d.until} min={d.startDate} onChange={(e) => set({ until: e.target.value })} /></Field> : null}
+              {d.endMode === 'until' ? <Field label="Jusqu’au" error={err('until')}><DateFR value={d.until} min={d.startDate} onChange={(v) => set({ until: v })} /></Field> : null}
               {d.endMode === 'count' ? <Field label="Nombre d’occurrences"><input type="number" min={1} max={500} value={d.count} onChange={(e) => set({ count: Number(e.target.value) })} /></Field> : null}
             </> : null}
           </div>

@@ -1,3 +1,4 @@
+import { DateFR } from '../../ui/DateFR';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { deleteTasks, newTask, openEvent, run, setDone, taskMenu } from '../../app/actions';
 import { useLookups } from '../../app/derived';
@@ -118,7 +119,7 @@ export function TaskList({ tasks, eventId, defaultOccurrence, showQuickAdd, grou
         <form className="quickadd" onSubmit={(e) => { e.preventDefault(); void addQuick(); }}>
           <Icon name="plus" size={17} />
           <input ref={qaRef} value={qa.title} onChange={(e) => setQa({ ...qa, title: e.target.value })} placeholder="Ajouter une tâche puis Entrée" aria-label="Titre de la nouvelle tâche" />
-          <input type="date" value={qa.due} onChange={(e) => setQa({ ...qa, due: e.target.value })} aria-label="Échéance" />
+          <DateFR value={qa.due} onChange={(v) => setQa({ ...qa, due: v })} ariaLabel="Échéance" />
           <Select value={qa.who} onChange={(v) => setQa({ ...qa, who: v })} ariaLabel="Responsable de la nouvelle tâche" options={[{ value: '', label: 'Responsable' }, ...activeTeam.map((m) => ({ value: m.id, label: m.code }))]} />
           {!eventId ? <Select value={qa.ev} onChange={(v) => setQa({ ...qa, ev: v })} ariaLabel="Événement de la nouvelle tâche" options={[{ value: '', label: 'Sans événement' }, ...events.filter((e) => !e.archived).map((e) => ({ value: e.id, label: e.title }))]} /> : null}
           <Button type="submit" variant="primary" size="sm" disabled={!qa.title.trim()}>Ajouter</Button>
@@ -245,9 +246,9 @@ export function TaskPanel({ id, defaults }: { id?: string | null; defaults?: Par
         <Field label="Responsable">
           <Select value={t.assigneeId ?? ''} onChange={(v) => set({ assigneeId: v || null })} ariaLabel="Responsable" options={[{ value: '', label: 'Non assignée' }, ...activeTeam.map((m) => ({ value: m.id, label: `${m.code} — ${m.label}` }))]} />
         </Field>
-        <Field label="Début" error={err('startDate')}><input type="date" value={t.startDate ?? ''} onChange={(e) => set({ startDate: e.target.value || null })} /></Field>
+        <Field label="Début" error={err('startDate')}><DateFR value={t.startDate ?? ''} onChange={(v) => set({ startDate: v || null })} /></Field>
         <Field label="Échéance" error={err('dueDate')} hint={t.offsetDays != null ? (t.manualDates ? 'Date ajustée à la main : non recalculée automatiquement.' : `Relative à l’événement (J${t.offsetDays >= 0 ? '+' : ''}${t.offsetDays}).`) : undefined}>
-          <input type="date" value={t.dueDate ?? ''} onChange={(e) => set({ dueDate: e.target.value || null })} />
+          <DateFR value={t.dueDate ?? ''} onChange={(v) => set({ dueDate: v || null })} />
         </Field>
         <Field label="Priorité">
           <Select value={t.priority} onChange={(v) => set({ priority: v as Priority })} ariaLabel="Priorité" options={PRIORITIES.map((p) => ({ value: p, label: PRIORITY_LABEL[p] }))} />

@@ -113,7 +113,7 @@ export class AppStore {
     return this.state.team.find((m) => m.id === this.state.settings.currentUserId) ?? null;
   }
   role(): Role {
-    return this.currentMember()?.role ?? 'administrateur';
+    return this.currentMember()?.role ?? 'lecture_seule';
   }
   can(p: Permission): boolean {
     return ROLE_PERMISSIONS[this.role()].includes(p);

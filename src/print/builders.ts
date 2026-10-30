@@ -1,7 +1,7 @@
 import { formatDate, formatRange, formatTimestamp, ymd } from '../domain/dates';
 import { computeProgress, isDone, isOverdue, taskEnd, taskStart } from '../domain/planning';
 import { expandEvents } from '../domain/recurrence';
-import { EVENT_STATUS_LABEL, luxembourgHolidays, TASK_STATUS_LABEL } from '../domain/reference';
+import { CATEGORY_LABEL, EVENT_STATUS_LABEL, luxembourgHolidays, TASK_STATUS_LABEL } from '../domain/reference';
 import type { Course, ISODate, PlanningEvent, Task, TeamMember } from '../domain/types';
 import { AnnualCourseDay, AnnualInput, AnnualOptions, ChecklistInput, OpsGroup, OpsInput } from './layouts';
 import { Orientation, PaperFormat } from './model';
@@ -137,11 +137,16 @@ export function buildChecklistInput(data: PrintData, eventId: string, occurrence
     .sort((a, b) => (taskEnd(a) ?? '9999').localeCompare(taskEnd(b) ?? '9999'));
   const p = computeProgress(tasks, data.today);
   const time = e.startTime ? `, ${e.startTime}${e.endTime ? `–${e.endTime}` : ''}` : '';
+  const categoryLabel = e.kind === 'projet' ? 'Projet' : CATEGORY_LABEL[e.category];
+  const subject = (e.description ?? '').split(/\r?\n/).map((line) => line.trim()).find((line) => line && !/^https?:\/\//i.test(line)) ?? '';
+  const genericTitle = e.title.trim().toLowerCase() === categoryLabel.toLowerCase();
   return {
-    title: e.title,
+    title: genericTitle && subject ? `${e.title} — ${subject}` : e.title,
     lines: [
       ['Date', `${formatRange(e.startDate, e.endDate)}${time}`],
       ['Lieu', e.location || '—'],
+      ['Catégorie', categoryLabel],
+      ...(subject ? [['Objet', subject] as [string, string]] : []),
       ['Responsable', code(e.ownerId)],
       ['Statut', EVENT_STATUS_LABEL[e.status]],
       ['Avancement', `${p.done} / ${p.total} tâches terminées (${p.pct} %)`],
