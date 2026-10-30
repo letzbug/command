@@ -5,12 +5,19 @@ import { useAppState, useStore } from '../../app/store';
 import { addDays, addMonths, capitalize, daysInMonth, diffDays, formatDate, MONTHS_FR, parts, startOfMonth, weekdayMon0 } from '../../domain/dates';
 import { computeProgress, dependencyConflicts, isDone, isOverdue, taskEnd, taskStart } from '../../domain/planning';
 import { TASK_STATUSES, TASK_STATUS_LABEL } from '../../domain/reference';
-import type { EventKind, ISODate, Task } from '../../domain/types';
+import type { EventCategory, EventKind, ISODate, Task } from '../../domain/types';
 import { Icon } from '../../ui/icons';
 import { Button, IconButton, MemberTag, Segmented, Select } from '../../ui/kit';
 import { ui } from '../../ui/uiStore';
 
-export interface GanttGroup { id: string; title: string; start: ISODate; end: ISODate; kind: EventKind; tasks: Task[] }
+export interface GanttGroup { id: string; title: string; start: ISODate; end: ISODate; kind: EventKind; category?: EventCategory; tasks: Task[] }
+
+// Stable visual category colors: no new database field, no permission or migration changes.
+const CATEGORY_COLORS: Partial<Record<EventCategory, string>> = {
+  conference: '#5275C6', portes_ouvertes: '#138E83', lancement_cours: '#8D62C9',
+  campagne: '#BE6A42', institutionnel: '#475C87', technique: '#A57732',
+  reunion: '#65758B', formation: '#399574', autre: '#718096',
+};
 
 type Zoom = 'jour' | 'semaine' | 'mois';
 const DAY_W: Record<Zoom, number> = { jour: 30, semaine: 12, mois: 4 };
@@ -145,7 +152,7 @@ export function Gantt({ groups, loose = [], initialStart, compact }: { groups: G
           <Button size="sm" variant="ghost" onClick={() => setViewStart(startOfMonth(addMonths(today, zoom === 'mois' ? -2 : -1)))}>Aujourd’hui</Button>
         </div>
         <div className="cal-tools">
-          <Select value={person} onChange={setPerson} ariaLabel="Filtrer par responsable" options={[{ value: '', label: 'Toute l’équipe' }, ...team.map((m) => ({ value: m.id, label: m.code }))]} />
+          <Select value={person} onChange={setPerson} ariaLabel="Filtrer par responsable" options={[{ value: '', label: 'Toute l’équipe' }, ...team.map((m) => ({ value: m.id, label: m.label || m.code }))]} />
           <Select value={status} onChange={setStatus} ariaLabel="Filtrer par statut" options={[{ value: '', label: 'Tous les statuts' }, { value: 'en_retard', label: 'En retard' }, ...TASK_STATUSES.map((s) => ({ value: s, label: TASK_STATUS_LABEL[s] }))]} />
           <Segmented size="sm" ariaLabel="Échelle" value={zoom} onChange={setZoom} options={[{ value: 'jour', label: 'Jours' }, { value: 'semaine', label: 'Semaines' }, { value: 'mois', label: 'Année' }]} />
         </div>
@@ -203,7 +210,7 @@ function GroupRow({ g, x, dayW, today }: { g: GanttGroup; x: (d: ISODate) => num
         {g.tasks.length ? <span className="gl-pct">{p.pct} %</span> : null}
       </div>
       <div className="gt gt-group">
-        {real ? <span className={`g-span g-span-${g.kind}`} style={{ left: x(g.start), width: Math.max(dayW, (diffDays(g.end, g.start) + 1) * dayW) }} /> : null}
+        {real ? <span className={`g-span g-span-${g.kind}`} style={{ left: x(g.start), width: Math.max(dayW, (diffDays(g.end, g.start) + 1) * dayW), backgroundColor: g.category ? CATEGORY_COLORS[g.category] : undefined }} title={g.category ? `Catégorie : ${g.category}` : undefined} /> : null}
       </div>
     </div>
   );

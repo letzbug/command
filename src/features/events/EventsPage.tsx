@@ -46,7 +46,7 @@ function EventsList() {
   const arch = filtered.filter((e) => e.archived);
 
   const groups: GanttGroup[] = filtered.filter((e) => !e.archived).sort((a, b) => a.startDate.localeCompare(b.startDate))
-    .map((e) => ({ id: e.id, title: e.title, start: e.startDate, end: e.endDate, kind: e.kind, tasks: tasksByEvent.get(e.id) ?? [] }))
+    .map((e) => ({ id: e.id, title: e.title, start: e.startDate, end: e.endDate, kind: e.kind, category: e.category, tasks: tasksByEvent.get(e.id) ?? [] }))
     .filter((g) => g.tasks.length);
 
   const Row = ({ e }: { e: PlanningEvent }) => {
