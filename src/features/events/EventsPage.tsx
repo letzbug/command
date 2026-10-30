@@ -80,7 +80,7 @@ function EventsList() {
         <div className="search-input"><Icon name="search" size={16} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher un projet, un lieu…" aria-label="Rechercher" /></div>
         <Select value={kind} onChange={setKind} ariaLabel="Type" options={[{ value: '', label: 'Projets et événements' }, { value: 'projet', label: 'Projets' }, { value: 'evenement', label: 'Événements' }]} />
         <Select value={status} onChange={setStatus} ariaLabel="Statut" options={[{ value: '', label: 'Tous les statuts' }, ...EVENT_STATUSES.map((s) => ({ value: s, label: EVENT_STATUS_LABEL[s] }))]} />
-        <Select value={owner} onChange={setOwner} ariaLabel="Responsable" options={[{ value: '', label: 'Tous les responsables' }, ...team.map((m) => ({ value: m.id, label: m.code }))]} />
+        <Select value={owner} onChange={setOwner} ariaLabel="Responsable" options={[{ value: '', label: 'Tous les responsables' }, ...team.map((m) => ({ value: m.id, label: memberDisplayName(m) }))]} />
         <Toggle checked={archived} onChange={setArchived} label="Archivés" />
         <span className="spacer" />
         <Segmented ariaLabel="Affichage" size="sm" value={view} onChange={setView} options={[{ value: 'liste', label: 'Liste', icon: 'list' }, { value: 'gantt', label: 'Gantt', icon: 'gantt' }]} />

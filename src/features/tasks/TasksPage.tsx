@@ -108,7 +108,7 @@ export function TaskList({ tasks, eventId, defaultOccurrence, showQuickAdd, grou
       {!compact ? (
         <div className="page-tools">
           <div className="search-input"><Icon name="search" size={16} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher une tâche…" aria-label="Rechercher une tâche" /></div>
-          <Select value={who} onChange={setWho} ariaLabel="Responsable" options={[{ value: '', label: 'Tous les responsables' }, { value: '__none', label: 'Non assignées' }, ...team.map((m) => ({ value: m.id, label: m.code }))]} />
+          <Select value={who} onChange={setWho} ariaLabel="Responsable" options={[{ value: '', label: 'Tous les responsables' }, { value: '__none', label: 'Non assignées' }, ...team.map((m) => ({ value: m.id, label: memberDisplayName(m) }))]} />
           {!doneView ? <Select value={status} onChange={setStatus} ariaLabel="Statut" options={[{ value: '', label: 'Tous les statuts' }, ...TASK_STATUSES.filter((s) => s !== 'termine').map((s) => ({ value: s, label: TASK_STATUS_LABEL[s] }))]} /> : null}
           <Select value={prio} onChange={setPrio} ariaLabel="Priorité" options={[{ value: '', label: 'Toutes priorités' }, ...PRIORITIES.map((p) => ({ value: p, label: PRIORITY_LABEL[p] }))]} />
           {!doneView ? <Select value={sort} onChange={setSort} ariaLabel="Trier" options={[{ value: 'echeance', label: 'Tri : échéance' }, { value: 'priorite', label: 'Tri : priorité' }, { value: 'titre', label: 'Tri : titre' }, { value: 'statut', label: 'Tri : statut' }]} /> : null}
@@ -120,7 +120,7 @@ export function TaskList({ tasks, eventId, defaultOccurrence, showQuickAdd, grou
           <Icon name="plus" size={17} />
           <input ref={qaRef} value={qa.title} onChange={(e) => setQa({ ...qa, title: e.target.value })} placeholder="Ajouter une tâche puis Entrée" aria-label="Titre de la nouvelle tâche" />
           <DateFR value={qa.due} onChange={(v) => setQa({ ...qa, due: v })} ariaLabel="Échéance" />
-          <Select value={qa.who} onChange={(v) => setQa({ ...qa, who: v })} ariaLabel="Responsable de la nouvelle tâche" options={[{ value: '', label: 'Responsable' }, ...activeTeam.map((m) => ({ value: m.id, label: m.code }))]} />
+          <Select value={qa.who} onChange={(v) => setQa({ ...qa, who: v })} ariaLabel="Responsable de la nouvelle tâche" options={[{ value: '', label: 'Responsable' }, ...activeTeam.map((m) => ({ value: m.id, label: memberDisplayName(m) }))]} />
           {!eventId ? <Select value={qa.ev} onChange={(v) => setQa({ ...qa, ev: v })} ariaLabel="Événement de la nouvelle tâche" options={[{ value: '', label: 'Sans événement' }, ...events.filter((e) => !e.archived).map((e) => ({ value: e.id, label: e.title }))]} /> : null}
           <Button type="submit" variant="primary" size="sm" disabled={!qa.title.trim()}>Ajouter</Button>
         </form>
@@ -131,7 +131,7 @@ export function TaskList({ tasks, eventId, defaultOccurrence, showQuickAdd, grou
           <b>{ids.length} sélectionnée{ids.length > 1 ? 's' : ''}</b>
           <Button size="sm" icon="checkCircle" onClick={() => void setDone(ids, true).then(() => setSel(new Set()))}>Terminer</Button>
           <Select value="" onChange={(v) => v && void run(() => store.setTaskStatus(ids, v as TaskStatus), 'Statut mis à jour')} ariaLabel="Changer le statut" options={[{ value: '', label: 'Statut…' }, ...TASK_STATUSES.map((s) => ({ value: s, label: TASK_STATUS_LABEL[s] }))]} />
-          <Select value="" onChange={(v) => v && void run(() => store.assignTasks(ids, v === '__none' ? null : v), 'Responsable mis à jour')} ariaLabel="Assigner" options={[{ value: '', label: 'Assigner à…' }, { value: '__none', label: 'Personne' }, ...activeTeam.map((m) => ({ value: m.id, label: m.code }))]} />
+          <Select value="" onChange={(v) => v && void run(() => store.assignTasks(ids, v === '__none' ? null : v), 'Responsable mis à jour')} ariaLabel="Assigner" options={[{ value: '', label: 'Assigner à…' }, { value: '__none', label: 'Personne' }, ...activeTeam.map((m) => ({ value: m.id, label: memberDisplayName(m) }))]} />
           <Button size="sm" variant="danger" icon="trash" onClick={() => void deleteTasks(ids).then((ok) => ok && setSel(new Set()))}>Supprimer</Button>
           <Button size="sm" variant="ghost" onClick={() => setSel(new Set())}>Désélectionner</Button>
         </div>
