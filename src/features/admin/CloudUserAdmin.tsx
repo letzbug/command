@@ -48,6 +48,20 @@ export function CloudUserAdmin({ session, onClose }: { session: CloudSession; on
     catch (err) { setNotice(err instanceof Error ? err.message : String(err)); }
     finally { setLoading(false); }
   }
+  async function removeUser(u: User) {
+    if (u.userId === session.userId) return;
+    const expected = u.email.trim().toLowerCase();
+    const entered = window.prompt(`Suppression définitive de ${u.label} (${u.email}).\n\nLe compte de connexion sera supprimé, ainsi que son profil COMMAND. Les affectations aux événements/tâches seront effacées, mais les événements/tâches resteront.\n\nPour confirmer, saisissez l’adresse e-mail complète :`);
+    if (entered === null) return;
+    if (entered.trim().toLowerCase() !== expected) { setNotice('Suppression annulée : adresse e-mail incorrecte.'); return; }
+    setLoading(true); setNotice('');
+    try {
+      await call('delete', { memberId: u.id, expectedEmail: expected, confirmation: 'SUPPRIMER' });
+      await refresh();
+      setNotice(`Compte supprimé : ${u.email}`);
+    } catch (err) { setNotice(err instanceof Error ? err.message : String(err)); }
+    finally { setLoading(false); }
+  }
   const inputStyle: React.CSSProperties = { padding: 10, borderRadius: 8, border: '1px solid #cad3df', width: '100%', boxSizing: 'border-box' };
   return <div role="dialog" aria-modal="true" aria-label="Gestion des utilisateurs"
     style={{ position: 'fixed', inset: 0, zIndex: 10001, background: '#101f36b9', overflow: 'auto', padding: '3vh 14px' }}>
@@ -70,7 +84,7 @@ export function CloudUserAdmin({ session, onClose }: { session: CloudSession; on
             <td style={{ padding: 9 }}><b>{u.label}</b><small style={{ display: 'block', color: '#64748b' }}>{u.email}</small></td>
             <td style={{ padding: 9 }}><select disabled={loading || u.userId === session.userId} value={u.role} onChange={e => void change(u, { role: e.target.value })}>{options.map(([value,text]) => <option key={value} value={value}>{text}</option>)}</select></td>
             <td style={{ padding: 9 }}>{u.active ? 'Actif' : 'Désactivé'}</td>
-            <td style={{ padding: 9 }}><button disabled={loading || u.userId === session.userId} type="button" onClick={() => void change(u, { active: !u.active })}>{u.active ? 'Désactiver' : 'Réactiver'}</button></td>
+            <td style={{ padding: 9, whiteSpace: 'nowrap' }}><button disabled={loading || u.userId === session.userId} type="button" onClick={() => void change(u, { active: !u.active })}>{u.active ? 'Désactiver' : 'Réactiver'}</button> <button disabled={loading || u.userId === session.userId} type="button" onClick={() => void removeUser(u)} style={{ color: '#a51c30', border: '1px solid #efb8c1', borderRadius: 5, padding: '4px 8px', background: '#fff5f5' }}>Supprimer</button></td>
           </tr>)}</tbody></table>
       </div>
       <p style={{ fontSize: 12, color: '#64748b' }}>La gestion est protégée côté serveur. Le service e-mail Supabase peut limiter le nombre d'invitations envoyées par heure.</p>
