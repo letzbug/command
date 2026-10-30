@@ -349,19 +349,29 @@ export class AppStore {
 
   async deleteTasks(ids: string[]): Promise<Undo> {
     this.ensure('task.delete');
-    const set = new Set(ids);
+    const selected = new Set(ids);
     const before = this.state.tasks;
-    const removed = before.filter((t) => set.has(t.id));
-    const cleaned = before.filter((t) => !set.has(t.id) && t.dependsOn.some((d) => set.has(d))).map((t) => ({ ...t, dependsOn: t.dependsOn.filter((d) => !set.has(d)) }));
-    await this.repo.tasks.remove(ids);
+    const removed = before.filter((t) => selected.has(t.id));
+    // Removing a dependency edits existing tasks. Their rev must increase,
+    // otherwise the cloud repository interprets rev=1 as an INSERT and hits tasks_pkey.
+    const cleaned = before
+      .filter((t) => !selected.has(t.id) && t.dependsOn.some((d) => selected.has(d)))
+      .map((t) => this.touch(this.hist({ ...t, dependsOn: t.dependsOn.filter((d) => !selected.has(d)) }, 'Dépendance supprimée')));
+
+    // Update referencing tasks first. A stale revision must fail BEFORE deletion.
     await this.repo.tasks.upsert(cleaned);
-    const cl = new Map(cleaned.map((t) => [t.id, t]));
-    this.set({ tasks: before.filter((t) => !set.has(t.id)).map((t) => cl.get(t.id) ?? t) });
+    await this.repo.tasks.remove(ids);
+    const changed = new Map(cleaned.map((t) => [t.id, t]));
+    this.set({ tasks: before.filter((t) => !selected.has(t.id)).map((t) => changed.get(t.id) ?? t) });
     return async () => {
-      const originals = before.filter((t) => set.has(t.id) || cl.has(t.id));
-      await this.repo.tasks.upsert(originals);
-      this.set({ tasks: before });
-      void removed;
+      // Restored deleted records are new INSERTs, irrespective of their old revision.
+      await this.repo.tasks.upsert(removed.map((t) => ({ ...t, rev: 1 })));
+      const restoredDependencies = before
+        .filter((t) => changed.has(t.id))
+        .map((t) => this.touch({ ...t, rev: changed.get(t.id)!.rev }));
+      await this.repo.tasks.upsert(restoredDependencies);
+      const restored = new Map(restoredDependencies.map((t) => [t.id, t]));
+      this.set({ tasks: before.map((t) => restored.get(t.id) ?? (selected.has(t.id) ? { ...t, rev: 1 } : t)) });
     };
   }
 
