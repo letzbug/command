@@ -205,7 +205,12 @@ export function TaskPanel({ id, defaults }: { id?: string | null; defaults?: Par
   if (t.startDate && !isValidISODate(t.startDate)) errors.startDate = 'Date invalide.';
   if (t.dueDate && !isValidISODate(t.dueDate)) errors.dueDate = 'Date invalide.';
   if (t.startDate && t.dueDate && t.dueDate < t.startDate) errors.dueDate = 'L’échéance doit suivre le début.';
-  const depErr = validateDependencies(t.id, t.dependsOn, [...tasks.filter((x) => x.id !== t.id), t]);
+  // An earlier deletion can leave references to tasks that no longer exist.
+  // Do not let these orphan IDs block unrelated edits (notes, description, assignee).
+  const taskIds = new Set(tasks.map((x) => x.id));
+  const validDependsOn = t.dependsOn.filter((depId) => taskIds.has(depId));
+  const orphanedDependencies = t.dependsOn.length - validDependsOn.length;
+  const depErr = validateDependencies(t.id, validDependsOn, [...tasks.filter((x) => x.id !== t.id), { ...t, dependsOn: validDependsOn }]);
   if (depErr) errors.deps = depErr;
   const conflicts = dependencyConflicts(t, taskById);
   const candidates = tasks.filter((x) => x.id !== t.id && (t.eventId ? x.eventId === t.eventId : !x.eventId)).sort((a, b) => (a.dueDate ?? '9').localeCompare(b.dueDate ?? '9'));
@@ -215,7 +220,7 @@ export function TaskPanel({ id, defaults }: { id?: string | null; defaults?: Par
     setTouched(true);
     if (Object.keys(errors).length) return false;
     const datesChanged = !!existing && (existing.startDate !== t.startDate || existing.dueDate !== t.dueDate);
-    const saved = await run(() => store.saveTask({ ...t, title: t.title.trim() }, { datesEditedByHand: datesChanged }));
+    const saved = await run(() => store.saveTask({ ...t, title: t.title.trim(), dependsOn: validDependsOn }, { datesEditedByHand: datesChanged }));
     if (!saved) return false;
     ui.toast(existing ? 'Tâche enregistrée' : 'Tâche créée', 'success');
     ui.setCloseGuard(null);
@@ -271,6 +276,7 @@ export function TaskPanel({ id, defaults }: { id?: string | null; defaults?: Par
             ))}
           </div>
         ) : <p className="muted">Aucune autre tâche dans {t.eventId ? 'cet événement' : 'les tâches hors projet'}.</p>}
+        {orphanedDependencies > 0 ? <p className="form-note">{orphanedDependencies} dépendance{orphanedDependencies > 1 ? "s" : ""} vers une tâche supprimée sera{orphanedDependencies > 1 ? "ont" : ""} retirée{orphanedDependencies > 1 ? "s" : ""} lors de l’enregistrement.</p> : null}
         {errors.deps ? <p className="field-error">{errors.deps}</p> : null}
         {!errors.deps && conflicts.length ? <p className="warn-note"><Icon name="alert" size={15} />Commence avant la fin de : {conflicts.map((c) => c.title).join(', ')}.</p> : null}
       </fieldset>
