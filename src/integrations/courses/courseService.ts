@@ -7,7 +7,7 @@ import { mapUniPopCourses } from './unipopAdapter';
  * URL so a Cloudflare Worker proxy can replace the origin without code changes
  * (see workers/course-sync and docs/CLOUDFLARE.md).
  */
-export const DEFAULT_COURSE_SOURCE = 'https://raw.githubusercontent.com/letzbug/franks_magic/e82ac606f325b5c7bc2bf5e68eb95aa538ac4403/data/trainings.json';
+export const DEFAULT_COURSE_SOURCE = 'https://raw.githubusercontent.com/letzbug/franks_magic/main/data/trainings.json';
 
 export class CourseSyncError extends Error {
   constructor(message: string, readonly reason: 'network' | 'http' | 'auth' | 'format') {

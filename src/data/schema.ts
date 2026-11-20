@@ -107,6 +107,9 @@ export function normalizeMember(r: Partial<TeamMember>): TeamMember {
 export function normalizeCourseSourceUrl(value: string): string {
   const v = value.trim();
   if (!v || v === 'https://www.unipop.lu/private/trainings.json' || /^https:\/\/github\.com\/letzbug\/franks_magic\/(?:tree|blob)\//i.test(v)) return DEFAULT_COURSE_SOURCE;
+  // The former built-in source was pinned to an October 2026 commit. Upgrade ONLY
+  // this historical default (not a user's custom source) to the live main branch.
+  if (/^https:\/\/raw\.githubusercontent\.com\/letzbug\/franks_magic\/e82ac606f325b5c7bc2bf5e68eb95aa538ac4403\/data\/trainings\.json(?:\?.*)?$/i.test(v)) return DEFAULT_COURSE_SOURCE;
   return v;
 }
 

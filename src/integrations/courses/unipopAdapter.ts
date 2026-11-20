@@ -142,8 +142,14 @@ export function mapUniPopCourses(raw: unknown): MapResult {
   for (const item of list) {
     if (!item || typeof item !== 'object') { skipped++; continue; }
     const r = item as RawUniPopCourse;
-    // Only UniPop-owned courses, regardless of the other organisers in the feed.
-    if (clean(r.organisateur?.code).toUpperCase() !== 'UNIPOP') continue;
+    // Keep the strict UniPop filter, but also include UniPop Nordstad entries
+    // when the feed uses a separate organiser code for that branch. Matching is
+    // based on BOTH UniPop and Nordstad, never on the location alone.
+    const organiserCode = clean(r.organisateur?.code).toUpperCase();
+    const organiserName = normalize(clean(r.organisateur?.nom));
+    const isUniPopNordstad = /unipop/.test(organiserName) && /nordt?stad/.test(organiserName)
+      || /^UNIPOP[\s_-]*NORDT?STAD$/i.test(organiserCode);
+    if (organiserCode !== 'UNIPOP' && !isUniPopNordstad) continue;
     const start = parseFrDate(r.dateDebut);
     const end = parseFrDate(r.dateFin) ?? start;
     const title = clean(r.intitule);
